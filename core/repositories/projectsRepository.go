@@ -1,6 +1,6 @@
 package repositories
 
-import "github.com/jansen44/nagasu-kujira/src/core/entities"
+import "github.com/jansen44/nagasu-kujira/core/entities"
 
 type IProjectsRepository interface {
 	// CRUD ==========================================================

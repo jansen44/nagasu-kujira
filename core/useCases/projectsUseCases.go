@@ -1,8 +1,8 @@
 package useCases
 
 import (
-	"github.com/jansen44/nagasu-kujira/src/core/entities"
-	"github.com/jansen44/nagasu-kujira/src/core/repositories"
+	"github.com/jansen44/nagasu-kujira/core/entities"
+	"github.com/jansen44/nagasu-kujira/core/repositories"
 )
 
 type IProjectsUseCases interface {

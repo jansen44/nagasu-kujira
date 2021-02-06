@@ -1,9 +1,9 @@
 package rest
 
 import (
-	"github.com/jansen44/nagasu-kujira/src/core/repositories"
-	"github.com/jansen44/nagasu-kujira/src/drivers"
-	"github.com/jansen44/nagasu-kujira/src/drivers/rest/controllers"
+	"github.com/jansen44/nagasu-kujira/core/repositories"
+	"github.com/jansen44/nagasu-kujira/drivers"
+	"github.com/jansen44/nagasu-kujira/drivers/rest/controllers"
 	"github.com/sirupsen/logrus"
 	"net/http"
 )

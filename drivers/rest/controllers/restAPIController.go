@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"github.com/jansen44/nagasu-kujira/src/core/repositories"
-	"github.com/jansen44/nagasu-kujira/src/core/useCases"
+	"github.com/jansen44/nagasu-kujira/core/repositories"
+	"github.com/jansen44/nagasu-kujira/core/useCases"
 	"net/http"
 )
 
