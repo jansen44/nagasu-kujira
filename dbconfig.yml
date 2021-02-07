@@ -1,0 +1,4 @@
+mysql_development:
+  dialect: mysql
+  datasource: root:root@tcp(localhost:3306)/nagasu?parseTime=true
+  dir: infra/mysql/migrations
