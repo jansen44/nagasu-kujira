@@ -3,6 +3,7 @@ package mysql
 import (
 	"context"
 	"database/sql"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/jansen44/nagasu-kujira/util"
 	"github.com/sirupsen/logrus"
 )
