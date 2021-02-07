@@ -5,3 +5,11 @@ type MissionsEntity struct {
 	ProjectID int    `json:"projectId"`
 	Name      string `json:"name"`
 }
+
+func NewMissionsEntity(Name string, ProjectID, ID int) *MissionsEntity {
+	return &MissionsEntity{
+		ID:        ID,
+		ProjectID: ProjectID,
+		Name:      Name,
+	}
+}
