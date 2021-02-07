@@ -1,9 +1,9 @@
 package rest
 
 import (
-	"github.com/jansen44/nagasu-kujira/core/repositories"
 	"github.com/jansen44/nagasu-kujira/drivers"
 	"github.com/jansen44/nagasu-kujira/drivers/rest/controllers"
+	"github.com/jansen44/nagasu-kujira/util"
 	"github.com/sirupsen/logrus"
 	"net/http"
 )
@@ -13,10 +13,10 @@ type APIClient struct {
 	controller controllers.IRestAPIController
 }
 
-func NewRestAPIClient(projectsRepository repositories.IProjectsRepository) drivers.IDrivers {
+func NewRestAPIClient(config *util.Config) drivers.IDrivers {
 	return &APIClient{
 		port:       "8080",
-		controller: controllers.NewRestAPIController(projectsRepository),
+		controller: controllers.NewRestAPIController(config.ProjectRepository),
 	}
 }
 
@@ -29,7 +29,7 @@ func (client *APIClient) Start() {
 }
 
 func (client *APIClient) registerEndPoints() {
-	logrus.Info(" ## Registering endpoints on route '/projects'")
+	logrus.Info("## Registering endpoints on route '/projects'")
 	http.HandleFunc("/projects", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:

@@ -23,17 +23,17 @@ func NewProjectsUseCases(projectsRepository repositories.IProjectsRepository) IP
 }
 
 func (p ProjectsUseCases) ListProjects() ([]entities.ProjectsEntity, error) {
-	panic("implement me")
+	return p.projectsRepository.ReadProjects()
 }
 
 func (p ProjectsUseCases) AddNewProject(name string) (*entities.ProjectsEntity, error) {
-	panic("implement me")
+	return p.projectsRepository.CreateProject(&entities.ProjectsEntity{Name: name})
 }
 
 func (p ProjectsUseCases) UpdateOneProject(name string, ID int) (*entities.ProjectsEntity, error) {
-	panic("implement me")
+	return p.projectsRepository.UpdateProject(&entities.ProjectsEntity{ID: ID, Name: name})
 }
 
 func (p ProjectsUseCases) RemoveOneProject(ID int) (*entities.ProjectsEntity, error) {
-	panic("implement me")
+	return p.projectsRepository.DeleteProject(ID)
 }
