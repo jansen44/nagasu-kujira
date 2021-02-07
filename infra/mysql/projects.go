@@ -20,7 +20,7 @@ func NewProjectsMySQL(db *sql.DB, ctx context.Context) repositories.IProjectsRep
 }
 
 func modelToEntity(project *models.Project) *entities.ProjectsEntity {
-	return &entities.ProjectsEntity{ID: project.ID, Name: project.Name}
+	return entities.NewProjectsEntity(project.Name, project.ID)
 }
 
 func modelSliceToEntity(projectSlice models.ProjectSlice) []entities.ProjectsEntity {

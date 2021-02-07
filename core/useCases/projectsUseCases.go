@@ -27,11 +27,11 @@ func (p ProjectsUseCases) ListProjects() ([]entities.ProjectsEntity, error) {
 }
 
 func (p ProjectsUseCases) AddNewProject(name string) (*entities.ProjectsEntity, error) {
-	return p.projectsRepository.CreateProject(&entities.ProjectsEntity{Name: name})
+	return p.projectsRepository.CreateProject(entities.NewProjectsEntity(name, 0))
 }
 
 func (p ProjectsUseCases) UpdateOneProject(name string, ID int) (*entities.ProjectsEntity, error) {
-	return p.projectsRepository.UpdateProject(&entities.ProjectsEntity{ID: ID, Name: name})
+	return p.projectsRepository.UpdateProject(entities.NewProjectsEntity(name, ID))
 }
 
 func (p ProjectsUseCases) RemoveOneProject(ID int) (*entities.ProjectsEntity, error) {
