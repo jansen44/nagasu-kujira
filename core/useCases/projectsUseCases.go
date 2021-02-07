@@ -8,8 +8,8 @@ import (
 type IProjectsUseCases interface {
 	ListProjects() ([]entities.ProjectsEntity, error)
 	AddNewProject(name string) (*entities.ProjectsEntity, error)
-	UpdateOneProject(name string, ID int32) (*entities.ProjectsEntity, error)
-	RemoveOneProject(ID int32) (*entities.ProjectsEntity, error)
+	UpdateOneProject(name string, ID int) (*entities.ProjectsEntity, error)
+	RemoveOneProject(ID int) (*entities.ProjectsEntity, error)
 }
 
 type ProjectsUseCases struct {
@@ -30,10 +30,10 @@ func (p ProjectsUseCases) AddNewProject(name string) (*entities.ProjectsEntity, 
 	panic("implement me")
 }
 
-func (p ProjectsUseCases) UpdateOneProject(name string, ID int32) (*entities.ProjectsEntity, error) {
+func (p ProjectsUseCases) UpdateOneProject(name string, ID int) (*entities.ProjectsEntity, error) {
 	panic("implement me")
 }
 
-func (p ProjectsUseCases) RemoveOneProject(ID int32) (*entities.ProjectsEntity, error) {
+func (p ProjectsUseCases) RemoveOneProject(ID int) (*entities.ProjectsEntity, error) {
 	panic("implement me")
 }

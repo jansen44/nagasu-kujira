@@ -7,5 +7,5 @@ type IProjectsRepository interface {
 	CreateProject(project *entities.ProjectsEntity) (*entities.ProjectsEntity, error)
 	ReadProjects() ([]entities.ProjectsEntity, error)
 	UpdateProject(project *entities.ProjectsEntity) (*entities.ProjectsEntity, error)
-	DeleteProject(ID int32) (*entities.ProjectsEntity, error)
+	DeleteProject(ID int) (*entities.ProjectsEntity, error)
 }
