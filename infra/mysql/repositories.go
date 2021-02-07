@@ -10,7 +10,7 @@ import (
 )
 
 func InitRepositories(config *util.Config) error {
-	logrus.Info("## Initializing MySQL Repositories...")
+	logrus.Info("## Initializing MySQL DB Connection...")
 	mysqlContext := context.Background()
 	db, err := sql.Open("mysql", "root:root@tcp(localhost:3306)/nagasu?parseTime=true")
 	if err != nil {
@@ -26,6 +26,9 @@ func InitRepositories(config *util.Config) error {
 		return err
 	}
 
+	logrus.Info("## Initializing MySQL Repositories...")
 	config.ProjectRepository = NewProjectsMySQL(db, mysqlContext)
+	config.MissionRepository = NewMissionsMySQL(db, mysqlContext)
+
 	return nil
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/jansen44/nagasu-kujira/core/repositories"
 	"github.com/jansen44/nagasu-kujira/infra/mysql/models"
 	"github.com/volatiletech/sqlboiler/v4/boil"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 type ProjectsMySQL struct {
@@ -19,19 +20,27 @@ func NewProjectsMySQL(db *sql.DB, ctx context.Context) repositories.IProjectsRep
 	return &ProjectsMySQL{db, ctx}
 }
 
-func modelToEntity(project *models.Project) *entities.ProjectsEntity {
-	return entities.NewProjectsEntity(project.Name, project.ID)
+func projectModelToEntity(model *models.Project) *entities.ProjectsEntity {
+	project := entities.NewProjectsEntity(model.Name, model.ID)
+	if model.R != nil {
+		if model.R.Missions != nil {
+			for _, mission := range model.R.Missions {
+				project.Missions = append(project.Missions, missionModelToEntity(mission))
+			}
+		}
+	}
+	return project
 }
 
-func modelSliceToEntity(projectSlice models.ProjectSlice) []entities.ProjectsEntity {
+func projectModelSliceToEntity(projectSlice models.ProjectSlice) []entities.ProjectsEntity {
 	projects := make([]entities.ProjectsEntity, 0)
 	for _, project := range projectSlice {
-		projects = append(projects, *modelToEntity(project))
+		projects = append(projects, *projectModelToEntity(project))
 	}
 	return projects
 }
 
-func entityToModel(entity *entities.ProjectsEntity, model *models.Project) {
+func projectEntityToModel(entity *entities.ProjectsEntity, model *models.Project) {
 	model.ID = entity.ID
 	model.Name = entity.Name
 }
@@ -43,7 +52,7 @@ func (p ProjectsMySQL) CreateProject(project *entities.ProjectsEntity) (*entitie
 	if err != nil {
 		return nil, err
 	}
-	return modelToEntity(&model), nil
+	return projectModelToEntity(&model), nil
 }
 
 func (p ProjectsMySQL) ReadProjects() ([]entities.ProjectsEntity, error) {
@@ -51,7 +60,7 @@ func (p ProjectsMySQL) ReadProjects() ([]entities.ProjectsEntity, error) {
 	if err != nil {
 		return nil, err
 	}
-	return modelSliceToEntity(modelProjects), nil
+	return projectModelSliceToEntity(modelProjects), nil
 }
 
 func (p ProjectsMySQL) UpdateProject(project *entities.ProjectsEntity) (*entities.ProjectsEntity, error) {
@@ -59,12 +68,12 @@ func (p ProjectsMySQL) UpdateProject(project *entities.ProjectsEntity) (*entitie
 	if err != nil {
 		return nil, err
 	}
-	entityToModel(project, model)
+	projectEntityToModel(project, model)
 	_, err = model.Update(p.ctx, p.db, boil.Infer())
 	if err != nil {
 		return nil, err
 	}
-	return modelToEntity(model), nil
+	return projectModelToEntity(model), nil
 }
 
 func (p ProjectsMySQL) DeleteProject(ID int) (*entities.ProjectsEntity, error) {
@@ -76,5 +85,13 @@ func (p ProjectsMySQL) DeleteProject(ID int) (*entities.ProjectsEntity, error) {
 	if err != nil {
 		return nil, err
 	}
-	return modelToEntity(model), nil
+	return projectModelToEntity(model), nil
+}
+
+func (p ProjectsMySQL) ReadProject(projectID int) (*entities.ProjectsEntity, error) {
+	project, err := models.Projects(qm.Load(models.ProjectRels.Missions), qm.Where("id=?", projectID)).One(p.ctx, p.db)
+	if err != nil {
+		return nil, err
+	}
+	return projectModelToEntity(project), nil
 }

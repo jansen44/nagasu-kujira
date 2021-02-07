@@ -7,6 +7,7 @@ import (
 
 type IProjectsUseCases interface {
 	ListProjects() ([]entities.ProjectsEntity, error)
+	GetProjectInfo(ID int) (*entities.ProjectsEntity, error)
 	AddNewProject(name string) (*entities.ProjectsEntity, error)
 	UpdateOneProject(name string, ID int) (*entities.ProjectsEntity, error)
 	RemoveOneProject(ID int) (*entities.ProjectsEntity, error)
@@ -36,4 +37,8 @@ func (p ProjectsUseCases) UpdateOneProject(name string, ID int) (*entities.Proje
 
 func (p ProjectsUseCases) RemoveOneProject(ID int) (*entities.ProjectsEntity, error) {
 	return p.projectsRepository.DeleteProject(ID)
+}
+
+func (p ProjectsUseCases) GetProjectInfo(ID int) (*entities.ProjectsEntity, error) {
+	return p.projectsRepository.ReadProject(ID)
 }

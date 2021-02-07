@@ -44,16 +44,33 @@ func (api RestAPIController) DeleteProject(w http.ResponseWriter, r *http.Reques
 		_ = json.NewEncoder(w).Encode(models.ProjectResponse{Code: 403})
 		return
 	}
-
 	id, err := strconv.Atoi(idKeys[0])
 	if err != nil {
 		_ = json.NewEncoder(w).Encode(models.ProjectResponse{Code: 403})
 		return
 	}
-
 	project, err := api.projectsUseCases.RemoveOneProject(id)
 	if err != nil {
 		_ = json.NewEncoder(w).Encode(models.ProjectResponse{Code: 500, Error: err})
+	} else {
+		_ = json.NewEncoder(w).Encode(models.ProjectResponse{Code: 200, Data: project})
+	}
+}
+
+func (api RestAPIController) GetProject(w http.ResponseWriter, r *http.Request) {
+	idKeys, ok := r.URL.Query()["id"]
+	if !ok || len(idKeys) == 0 {
+		_ = json.NewEncoder(w).Encode(models.ProjectResponse{Code: 403})
+		return
+	}
+	id, err := strconv.Atoi(idKeys[0])
+	if err != nil {
+		_ = json.NewEncoder(w).Encode(models.ProjectResponse{Code: 403})
+		return
+	}
+	project, err := api.projectsUseCases.GetProjectInfo(id)
+	if err != nil {
+		_ = json.NewEncoder(w).Encode(models.SliceProjectResponse{Code: 500, Error: err})
 	} else {
 		_ = json.NewEncoder(w).Encode(models.ProjectResponse{Code: 200, Data: project})
 	}

@@ -8,4 +8,6 @@ type IProjectsRepository interface {
 	ReadProjects() ([]entities.ProjectsEntity, error)
 	UpdateProject(project *entities.ProjectsEntity) (*entities.ProjectsEntity, error)
 	DeleteProject(ID int) (*entities.ProjectsEntity, error)
+
+	ReadProject(projectID int) (*entities.ProjectsEntity, error)
 }

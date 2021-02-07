@@ -19,4 +19,5 @@ type Config struct {
 
 	// Repositories ==================
 	ProjectRepository repositories.IProjectsRepository
+	MissionRepository repositories.IMissionsRepository
 }

@@ -36,6 +36,13 @@ func (client *APIClient) registerEndPoints() {
 			client.controller.GetProjects(w, r)
 		case http.MethodPost:
 			client.controller.PostProject(w, r)
+		}
+	})
+	logrus.Info("## Registering endpoints on route '/project'")
+	http.HandleFunc("/project", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			client.controller.GetProject(w, r)
 		case http.MethodPut:
 			client.controller.PutProject(w, r)
 		case http.MethodDelete:

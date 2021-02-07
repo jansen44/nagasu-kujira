@@ -11,6 +11,7 @@ type IRestAPIController interface {
 	PostProject(w http.ResponseWriter, r *http.Request)
 	PutProject(w http.ResponseWriter, r *http.Request)
 	DeleteProject(w http.ResponseWriter, r *http.Request)
+	GetProject(w http.ResponseWriter, r *http.Request)
 }
 
 type RestAPIController struct {
