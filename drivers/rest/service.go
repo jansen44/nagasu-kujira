@@ -15,8 +15,11 @@ type APIClient struct {
 
 func NewRestAPIClient(config *util.Config) drivers.IDrivers {
 	return &APIClient{
-		port:       "8080",
-		controller: controllers.NewRestAPIController(config.ProjectRepository),
+		port: "8080",
+		controller: controllers.NewRestAPIController(
+			config.ProjectRepository,
+			config.MissionRepository,
+		),
 	}
 }
 
@@ -34,8 +37,6 @@ func (client *APIClient) registerEndPoints() {
 		switch r.Method {
 		case http.MethodGet:
 			client.controller.GetProjects(w, r)
-		case http.MethodPost:
-			client.controller.PostProject(w, r)
 		}
 	})
 	logrus.Info("## Registering endpoints on route '/project'")
@@ -43,10 +44,23 @@ func (client *APIClient) registerEndPoints() {
 		switch r.Method {
 		case http.MethodGet:
 			client.controller.GetProject(w, r)
+		case http.MethodPost:
+			client.controller.PostProject(w, r)
 		case http.MethodPut:
 			client.controller.PutProject(w, r)
 		case http.MethodDelete:
 			client.controller.DeleteProject(w, r)
+		}
+	})
+	logrus.Info("## Registering endpoints on route '/mission'")
+	http.HandleFunc("/mission", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodPost:
+			client.controller.PostMission(w, r)
+		case http.MethodPut:
+			client.controller.PutMission(w, r)
+		case http.MethodDelete:
+			client.controller.DeleteMission(w, r)
 		}
 	})
 }

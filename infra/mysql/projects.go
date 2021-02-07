@@ -24,9 +24,7 @@ func projectModelToEntity(model *models.Project) *entities.ProjectsEntity {
 	project := entities.NewProjectsEntity(model.Name, model.ID)
 	if model.R != nil {
 		if model.R.Missions != nil {
-			for _, mission := range model.R.Missions {
-				project.Missions = append(project.Missions, missionModelToEntity(mission))
-			}
+			project.Missions = missionModelSliceToPointerEntity(model.R.Missions)
 		}
 	}
 	return project

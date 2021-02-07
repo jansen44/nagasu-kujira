@@ -6,7 +6,7 @@ import (
 )
 
 type IMissionsUseCases interface {
-	AddNewMission(name string) (*entities.MissionsEntity, error)
+	AddNewMission(name string, projectId int) (*entities.MissionsEntity, error)
 	UpdateOneMission(name string, ID int) (*entities.MissionsEntity, error)
 	RemoveOneMission(ID int) (*entities.MissionsEntity, error)
 }
@@ -21,8 +21,8 @@ func NewMissionsUseCases(missionsRepository repositories.IMissionsRepository) IM
 	}
 }
 
-func (m MissionsUseCases) AddNewMission(name string) (*entities.MissionsEntity, error) {
-	return m.missionsRepository.CreateMission(&entities.MissionsEntity{Name: name})
+func (m MissionsUseCases) AddNewMission(name string, projectId int) (*entities.MissionsEntity, error) {
+	return m.missionsRepository.CreateMission(&entities.MissionsEntity{Name: name, ProjectID: projectId})
 }
 
 func (m MissionsUseCases) UpdateOneMission(name string, ID int) (*entities.MissionsEntity, error) {
