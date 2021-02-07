@@ -1,5 +1,5 @@
 -- +migrate Up
-create table projects (
+create table nagasu.projects (
     id int auto_increment,
     name varchar(255) not null,
     created_at timestamp default NOW() not null,
@@ -9,4 +9,4 @@ create table projects (
 );
 
 -- +migrate Down
-DROP TABLE projects;
+DROP TABLE nagasu.projects;
