@@ -7,6 +7,7 @@ import (
 	"github.com/jansen44/nagasu-kujira/core/repositories"
 	"github.com/jansen44/nagasu-kujira/infra/mysql/models"
 	"github.com/volatiletech/sqlboiler/v4/boil"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 type MissionsMySQL struct {
@@ -19,8 +20,15 @@ func NewMissionsMySQL(db *sql.DB, ctx context.Context) repositories.IMissionsRep
 	return &MissionsMySQL{db, ctx}
 }
 
-func missionModelToEntity(mission *models.Mission) *entities.MissionsEntity {
-	return entities.NewMissionsEntity(mission.Name, mission.ProjectsID, mission.ID)
+func missionModelToEntity(model *models.Mission) *entities.MissionsEntity {
+	mission := entities.NewMissionsEntity(model.Name, model.ProjectsID, model.ID)
+	if model.R != nil {
+		if model.R.Tasks != nil {
+			// ToDo: Add valid tasks
+			mission.Tasks = make([]*entities.TasksEntity, 0)
+		}
+	}
+	return mission
 }
 
 func missionModelSliceToEntity(missionSlice models.MissionSlice) []entities.MissionsEntity {
@@ -73,6 +81,14 @@ func (m MissionsMySQL) DeleteMission(ID int) (*entities.MissionsEntity, error) {
 		return nil, err
 	}
 	_, err = model.Delete(m.ctx, m.db)
+	if err != nil {
+		return nil, err
+	}
+	return missionModelToEntity(model), nil
+}
+
+func (m MissionsMySQL) ReadMission(ID int) (*entities.MissionsEntity, error) {
+	model, err := models.Missions(qm.Load(models.MissionRels.Tasks), qm.Where("id=?", ID)).One(m.ctx, m.db)
 	if err != nil {
 		return nil, err
 	}
