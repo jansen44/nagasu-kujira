@@ -133,13 +133,16 @@ var MissionWhere = struct {
 // MissionRels is where relationship names are stored.
 var MissionRels = struct {
 	Project string
+	Tasks   string
 }{
 	Project: "Project",
+	Tasks:   "Tasks",
 }
 
 // missionR is where relationships are stored.
 type missionR struct {
-	Project *Project `boil:"Project" json:"Project" toml:"Project" yaml:"Project"`
+	Project *Project  `boil:"Project" json:"Project" toml:"Project" yaml:"Project"`
+	Tasks   TaskSlice `boil:"Tasks" json:"Tasks" toml:"Tasks" yaml:"Tasks"`
 }
 
 // NewStruct creates a new relationship struct
@@ -446,6 +449,27 @@ func (o *Mission) Project(mods ...qm.QueryMod) projectQuery {
 	return query
 }
 
+// Tasks retrieves all the task's Tasks with an executor.
+func (o *Mission) Tasks(mods ...qm.QueryMod) taskQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.Where("`tasks`.`mission_id`=?", o.ID),
+	)
+
+	query := Tasks(queryMods...)
+	queries.SetFrom(query.Query, "`tasks`")
+
+	if len(queries.GetSelect(query.Query)) == 0 {
+		queries.SetSelect(query.Query, []string{"`tasks`.*"})
+	}
+
+	return query
+}
+
 // LoadProject allows an eager lookup of values, cached into the
 // loaded structs of the objects. This is for an N-1 relationship.
 func (missionL) LoadProject(ctx context.Context, e boil.ContextExecutor, singular bool, maybeMission interface{}, mods queries.Applicator) error {
@@ -550,6 +574,104 @@ func (missionL) LoadProject(ctx context.Context, e boil.ContextExecutor, singula
 	return nil
 }
 
+// LoadTasks allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (missionL) LoadTasks(ctx context.Context, e boil.ContextExecutor, singular bool, maybeMission interface{}, mods queries.Applicator) error {
+	var slice []*Mission
+	var object *Mission
+
+	if singular {
+		object = maybeMission.(*Mission)
+	} else {
+		slice = *maybeMission.(*[]*Mission)
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &missionR{}
+		}
+		args = append(args, object.ID)
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &missionR{}
+			}
+
+			for _, a := range args {
+				if a == obj.ID {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.ID)
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(
+		qm.From(`tasks`),
+		qm.WhereIn(`tasks.mission_id in ?`, args...),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load tasks")
+	}
+
+	var resultSlice []*Task
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice tasks")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results in eager load on tasks")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for tasks")
+	}
+
+	if len(taskAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
+				return err
+			}
+		}
+	}
+	if singular {
+		object.R.Tasks = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &taskR{}
+			}
+			foreign.R.Mission = object
+		}
+		return nil
+	}
+
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if local.ID == foreign.MissionID {
+				local.R.Tasks = append(local.R.Tasks, foreign)
+				if foreign.R == nil {
+					foreign.R = &taskR{}
+				}
+				foreign.R.Mission = local
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
 // SetProject of the mission to the related item.
 // Sets o.R.Project to related.
 // Adds o to related.R.Missions.
@@ -594,6 +716,59 @@ func (o *Mission) SetProject(ctx context.Context, exec boil.ContextExecutor, ins
 		related.R.Missions = append(related.R.Missions, o)
 	}
 
+	return nil
+}
+
+// AddTasks adds the given related objects to the existing relationships
+// of the mission, optionally inserting them as new records.
+// Appends related to o.R.Tasks.
+// Sets related.R.Mission appropriately.
+func (o *Mission) AddTasks(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Task) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			rel.MissionID = o.ID
+			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE `tasks` SET %s WHERE %s",
+				strmangle.SetParamNames("`", "`", 0, []string{"mission_id"}),
+				strmangle.WhereClause("`", "`", 0, taskPrimaryKeyColumns),
+			)
+			values := []interface{}{o.ID, rel.ID}
+
+			if boil.IsDebug(ctx) {
+				writer := boil.DebugWriterFrom(ctx)
+				fmt.Fprintln(writer, updateQuery)
+				fmt.Fprintln(writer, values)
+			}
+			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			rel.MissionID = o.ID
+		}
+	}
+
+	if o.R == nil {
+		o.R = &missionR{
+			Tasks: related,
+		}
+	} else {
+		o.R.Tasks = append(o.R.Tasks, related...)
+	}
+
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &taskR{
+				Mission: o,
+			}
+		} else {
+			rel.R.Mission = o
+		}
+	}
 	return nil
 }
 
