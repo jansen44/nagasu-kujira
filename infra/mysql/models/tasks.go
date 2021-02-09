@@ -23,7 +23,7 @@ import (
 
 // Task is an object representing the database table.
 type Task struct {
-	ID          int       `boil:"id" json:"id" toml:"id" yaml:"id"`
+	ID          int64     `boil:"id" json:"id" toml:"id" yaml:"id"`
 	MissionID   int       `boil:"mission_id" json:"mission_id" toml:"mission_id" yaml:"mission_id"`
 	Name        string    `boil:"name" json:"name" toml:"name" yaml:"name"`
 	Description string    `boil:"description" json:"description" toml:"description" yaml:"description"`
@@ -52,15 +52,38 @@ var TaskColumns = struct {
 
 // Generated where
 
+type whereHelperint64 struct{ field string }
+
+func (w whereHelperint64) EQ(x int64) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.EQ, x) }
+func (w whereHelperint64) NEQ(x int64) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
+func (w whereHelperint64) LT(x int64) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.LT, x) }
+func (w whereHelperint64) LTE(x int64) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.LTE, x) }
+func (w whereHelperint64) GT(x int64) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.GT, x) }
+func (w whereHelperint64) GTE(x int64) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.GTE, x) }
+func (w whereHelperint64) IN(slice []int64) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
+}
+func (w whereHelperint64) NIN(slice []int64) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
+}
+
 var TaskWhere = struct {
-	ID          whereHelperint
+	ID          whereHelperint64
 	MissionID   whereHelperint
 	Name        whereHelperstring
 	Description whereHelperstring
 	CreatedAt   whereHelpertime_Time
 	UpdatedAt   whereHelpertime_Time
 }{
-	ID:          whereHelperint{field: "`tasks`.`id`"},
+	ID:          whereHelperint64{field: "`tasks`.`id`"},
 	MissionID:   whereHelperint{field: "`tasks`.`mission_id`"},
 	Name:        whereHelperstring{field: "`tasks`.`name`"},
 	Description: whereHelperstring{field: "`tasks`.`description`"},
@@ -543,7 +566,7 @@ func Tasks(mods ...qm.QueryMod) taskQuery {
 
 // FindTask retrieves a single record by ID with an executor.
 // If selectCols is empty Find will return all columns.
-func FindTask(ctx context.Context, exec boil.ContextExecutor, iD int, selectCols ...string) (*Task, error) {
+func FindTask(ctx context.Context, exec boil.ContextExecutor, iD int64, selectCols ...string) (*Task, error) {
 	taskObj := &Task{}
 
 	sel := "*"
@@ -654,7 +677,7 @@ func (o *Task) Insert(ctx context.Context, exec boil.ContextExecutor, columns bo
 		return ErrSyncFail
 	}
 
-	o.ID = int(lastID)
+	o.ID = int64(lastID)
 	if lastID != 0 && len(cache.retMapping) == 1 && cache.retMapping[0] == taskMapping["id"] {
 		goto CacheNoHooks
 	}
@@ -942,7 +965,7 @@ func (o *Task) Upsert(ctx context.Context, exec boil.ContextExecutor, updateColu
 		return ErrSyncFail
 	}
 
-	o.ID = int(lastID)
+	o.ID = int64(lastID)
 	if lastID != 0 && len(cache.retMapping) == 1 && cache.retMapping[0] == taskMapping["id"] {
 		goto CacheNoHooks
 	}
@@ -1121,7 +1144,7 @@ func (o *TaskSlice) ReloadAll(ctx context.Context, exec boil.ContextExecutor) er
 }
 
 // TaskExists checks if the Task row exists.
-func TaskExists(ctx context.Context, exec boil.ContextExecutor, iD int) (bool, error) {
+func TaskExists(ctx context.Context, exec boil.ContextExecutor, iD int64) (bool, error) {
 	var exists bool
 	sql := "select exists(select 1 from `tasks` where `id`=? limit 1)"
 

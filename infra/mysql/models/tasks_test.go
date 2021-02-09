@@ -677,7 +677,7 @@ func testTasksSelect(t *testing.T) {
 }
 
 var (
-	taskDBTypes = map[string]string{`ID`: `int`, `MissionID`: `int`, `Name`: `varchar`, `Description`: `varchar`, `CreatedAt`: `timestamp`, `UpdatedAt`: `timestamp`}
+	taskDBTypes = map[string]string{`ID`: `bigint`, `MissionID`: `int`, `Name`: `varchar`, `Description`: `varchar`, `CreatedAt`: `timestamp`, `UpdatedAt`: `timestamp`}
 	_           = bytes.MinRead
 )
 

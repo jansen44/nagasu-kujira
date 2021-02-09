@@ -1,7 +1,7 @@
 -- +migrate Up
 create table nagasu.tasks
 (
-    id          int auto_increment,
+    id          bigint auto_increment,
     mission_id  int                     not null,
     name        varchar(255)            not null,
     description varchar(1024)           not null,
@@ -10,7 +10,7 @@ create table nagasu.tasks
     constraint tasks_pk
         primary key (id),
     constraint tasks_projects_fk
-        FOREIGN KEY (mission_id) REFERENCES nagasu.missions(id)
+        FOREIGN KEY (mission_id) REFERENCES nagasu.missions (id)
 );
 -- +migrate Down
 drop table nagasu.tasks;
