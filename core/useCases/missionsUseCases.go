@@ -9,6 +9,7 @@ type IMissionsUseCases interface {
 	AddNewMission(name string, projectId int) (*entities.MissionsEntity, error)
 	UpdateOneMission(name string, ID int) (*entities.MissionsEntity, error)
 	RemoveOneMission(ID int) (*entities.MissionsEntity, error)
+	GetMissionInfo(ID int) (*entities.MissionsEntity, error)
 }
 
 type MissionsUseCases struct {
@@ -31,4 +32,8 @@ func (m MissionsUseCases) UpdateOneMission(name string, ID int) (*entities.Missi
 
 func (m MissionsUseCases) RemoveOneMission(ID int) (*entities.MissionsEntity, error) {
 	return m.missionsRepository.DeleteMission(ID)
+}
+
+func (m MissionsUseCases) GetMissionInfo(ID int) (*entities.MissionsEntity, error) {
+	return m.missionsRepository.ReadMission(ID)
 }

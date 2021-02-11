@@ -19,6 +19,7 @@ func NewRestAPIClient(config *util.Config) drivers.IDrivers {
 		controller: controllers.NewRestAPIController(
 			config.ProjectRepository,
 			config.MissionRepository,
+			config.TaskRepository,
 		),
 	}
 }
@@ -55,12 +56,25 @@ func (client *APIClient) registerEndPoints() {
 	logrus.Info("## Registering endpoints on route '/mission'")
 	http.HandleFunc("/mission", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
+		case http.MethodGet:
+			client.controller.GetMission(w, r)
 		case http.MethodPost:
 			client.controller.PostMission(w, r)
 		case http.MethodPut:
 			client.controller.PutMission(w, r)
 		case http.MethodDelete:
 			client.controller.DeleteMission(w, r)
+		}
+	})
+	logrus.Info("## Registering endpoints on route '/task'")
+	http.HandleFunc("/task", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodPost:
+			client.controller.PortTask(w, r)
+		case http.MethodPut:
+			client.controller.PutTask(w, r)
+		case http.MethodDelete:
+			client.controller.DeleteTask(w, r)
 		}
 	})
 }

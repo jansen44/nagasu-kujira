@@ -24,6 +24,14 @@ func taskModelToEntity(model *models.Task) *entities.TasksEntity {
 	return task
 }
 
+func taskModelSliceToPointerEntity(taskSlice models.TaskSlice) []*entities.TasksEntity {
+	tasks := make([]*entities.TasksEntity, 0)
+	for _, task := range taskSlice {
+		tasks = append(tasks, taskModelToEntity(task))
+	}
+	return tasks
+}
+
 func taskEntityToModel(entity *entities.TasksEntity, model *models.Task) {
 	model.ID = entity.ID
 	model.Name = entity.Name

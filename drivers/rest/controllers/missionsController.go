@@ -7,6 +7,25 @@ import (
 	"strconv"
 )
 
+func (api RestAPIController) GetMission(w http.ResponseWriter, r *http.Request) {
+	idKeys, ok := r.URL.Query()["id"]
+	if !ok || len(idKeys) == 0 {
+		_ = json.NewEncoder(w).Encode(models.MissionResponse{Code: 403})
+		return
+	}
+	id, err := strconv.Atoi(idKeys[0])
+	if err != nil {
+		_ = json.NewEncoder(w).Encode(models.MissionResponse{Code: 403})
+		return
+	}
+	mission, err := api.missionsUseCases.GetMissionInfo(id)
+	if err != nil {
+		_ = json.NewEncoder(w).Encode(models.MissionResponse{Code: 500, Error: err})
+	} else {
+		_ = json.NewEncoder(w).Encode(models.MissionResponse{Code: 200, Data: mission})
+	}
+}
+
 func (api RestAPIController) PostMission(w http.ResponseWriter, r *http.Request) {
 	var missionSerializer models.NewMissionSerializer
 	_ = json.NewDecoder(r.Body).Decode(&missionSerializer)

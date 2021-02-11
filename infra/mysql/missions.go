@@ -24,8 +24,7 @@ func missionModelToEntity(model *models.Mission) *entities.MissionsEntity {
 	mission := entities.NewMissionsEntity(model.Name, model.ProjectsID, model.ID)
 	if model.R != nil {
 		if model.R.Tasks != nil {
-			// ToDo: Add valid tasks
-			mission.Tasks = make([]*entities.TasksEntity, 0)
+			mission.Tasks = taskModelSliceToPointerEntity(model.R.Tasks)
 		}
 	}
 	return mission
