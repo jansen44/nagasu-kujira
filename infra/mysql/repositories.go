@@ -29,6 +29,7 @@ func InitRepositories(config *util.Config) error {
 	logrus.Info("## Initializing MySQL Repositories...")
 	config.ProjectRepository = NewProjectsMySQL(db, mysqlContext)
 	config.MissionRepository = NewMissionsMySQL(db, mysqlContext)
+	config.TaskRepository = NewTasksMySQL(db, mysqlContext)
 
 	return nil
 }
