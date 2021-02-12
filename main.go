@@ -9,7 +9,7 @@ import (
 )
 
 func initStorage(config *util.Config) error {
-	logrus.Info("## Initializing Repositories...")
+	logrus.Info("## Initializing Storage...")
 	switch config.Storage {
 	case "mysql":
 		err := mysql.InitRepositories(config)

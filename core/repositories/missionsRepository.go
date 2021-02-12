@@ -1,11 +1,14 @@
 package repositories
 
-import "github.com/jansen44/nagasu-kujira/core/entities"
+import (
+	"context"
+	"github.com/jansen44/nagasu-kujira/core/entities"
+)
 
 type IMissionsRepository interface {
-	CreateMission(mission *entities.MissionsEntity) (*entities.MissionsEntity, error)
-	UpdateMission(mission *entities.MissionsEntity) (*entities.MissionsEntity, error)
-	DeleteMission(ID int) (*entities.MissionsEntity, error)
+	CreateMission(ctx context.Context, mission *entities.MissionsEntity) (*entities.MissionsEntity, error)
+	UpdateMission(ctx context.Context, mission *entities.MissionsEntity) (*entities.MissionsEntity, error)
+	DeleteMission(ctx context.Context, ID int) (*entities.MissionsEntity, error)
 
-	ReadMission(ID int) (*entities.MissionsEntity, error)
+	ReadMission(ctx context.Context, ID int) (*entities.MissionsEntity, error)
 }

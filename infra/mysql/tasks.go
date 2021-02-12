@@ -10,13 +10,12 @@ import (
 )
 
 type TasksMySQL struct {
-	db  *sql.DB
-	ctx context.Context
+	db *sql.DB
 }
 
 // Util ===============================================================================
-func NewTasksMySQL(db *sql.DB, ctx context.Context) repositories.ITasksRepository {
-	return &TasksMySQL{db, ctx}
+func NewTasksMySQL(db *sql.DB) repositories.ITasksRepository {
+	return &TasksMySQL{db}
 }
 
 func taskModelToEntity(model *models.Task) *entities.TasksEntity {
@@ -39,34 +38,34 @@ func taskEntityToModel(entity *entities.TasksEntity, model *models.Task) {
 }
 
 // Repository Methods ==================================================================
-func (t TasksMySQL) CreateTask(task *entities.TasksEntity) (*entities.TasksEntity, error) {
+func (t TasksMySQL) CreateTask(ctx context.Context, task *entities.TasksEntity) (*entities.TasksEntity, error) {
 	model := models.Task{Name: task.Name, Description: task.Description, MissionID: task.MissionID}
-	err := model.Insert(t.ctx, t.db, boil.Infer())
+	err := model.Insert(ctx, t.db, boil.Infer())
 	if err != nil {
 		return nil, err
 	}
 	return taskModelToEntity(&model), nil
 }
 
-func (t TasksMySQL) UpdateTask(task *entities.TasksEntity) (*entities.TasksEntity, error) {
-	model, err := models.FindTask(t.ctx, t.db, task.ID)
+func (t TasksMySQL) UpdateTask(ctx context.Context, task *entities.TasksEntity) (*entities.TasksEntity, error) {
+	model, err := models.FindTask(ctx, t.db, task.ID)
 	if err != nil {
 		return nil, err
 	}
 	taskEntityToModel(task, model)
-	_, err = model.Update(t.ctx, t.db, boil.Infer())
+	_, err = model.Update(ctx, t.db, boil.Infer())
 	if err != nil {
 		return nil, err
 	}
 	return taskModelToEntity(model), nil
 }
 
-func (t TasksMySQL) DeleteTask(ID int64) (*entities.TasksEntity, error) {
-	model, err := models.FindTask(t.ctx, t.db, ID)
+func (t TasksMySQL) DeleteTask(ctx context.Context, ID int64) (*entities.TasksEntity, error) {
+	model, err := models.FindTask(ctx, t.db, ID)
 	if err != nil {
 		return nil, err
 	}
-	_, err = model.Delete(t.ctx, t.db)
+	_, err = model.Delete(ctx, t.db)
 	if err != nil {
 		return nil, err
 	}

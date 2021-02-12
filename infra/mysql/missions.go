@@ -11,13 +11,12 @@ import (
 )
 
 type MissionsMySQL struct {
-	db  *sql.DB
-	ctx context.Context
+	db *sql.DB
 }
 
 // Util ===============================================================================
-func NewMissionsMySQL(db *sql.DB, ctx context.Context) repositories.IMissionsRepository {
-	return &MissionsMySQL{db, ctx}
+func NewMissionsMySQL(db *sql.DB) repositories.IMissionsRepository {
+	return &MissionsMySQL{db}
 }
 
 func missionModelToEntity(model *models.Mission) *entities.MissionsEntity {
@@ -52,42 +51,42 @@ func missionEntityToModel(entity *entities.MissionsEntity, model *models.Mission
 }
 
 // Repository Methods ==================================================================
-func (m MissionsMySQL) CreateMission(mission *entities.MissionsEntity) (*entities.MissionsEntity, error) {
+func (m MissionsMySQL) CreateMission(ctx context.Context, mission *entities.MissionsEntity) (*entities.MissionsEntity, error) {
 	model := models.Mission{Name: mission.Name, ProjectsID: mission.ProjectID}
-	err := model.Insert(m.ctx, m.db, boil.Infer())
+	err := model.Insert(ctx, m.db, boil.Infer())
 	if err != nil {
 		return nil, err
 	}
 	return missionModelToEntity(&model), nil
 }
 
-func (m MissionsMySQL) UpdateMission(mission *entities.MissionsEntity) (*entities.MissionsEntity, error) {
-	model, err := models.FindMission(m.ctx, m.db, mission.ID)
+func (m MissionsMySQL) UpdateMission(ctx context.Context, mission *entities.MissionsEntity) (*entities.MissionsEntity, error) {
+	model, err := models.FindMission(ctx, m.db, mission.ID)
 	if err != nil {
 		return nil, err
 	}
 	missionEntityToModel(mission, model)
-	_, err = model.Update(m.ctx, m.db, boil.Infer())
+	_, err = model.Update(ctx, m.db, boil.Infer())
 	if err != nil {
 		return nil, err
 	}
 	return missionModelToEntity(model), nil
 }
 
-func (m MissionsMySQL) DeleteMission(ID int) (*entities.MissionsEntity, error) {
-	model, err := models.FindMission(m.ctx, m.db, ID)
+func (m MissionsMySQL) DeleteMission(ctx context.Context, ID int) (*entities.MissionsEntity, error) {
+	model, err := models.FindMission(ctx, m.db, ID)
 	if err != nil {
 		return nil, err
 	}
-	_, err = model.Delete(m.ctx, m.db)
+	_, err = model.Delete(ctx, m.db)
 	if err != nil {
 		return nil, err
 	}
 	return missionModelToEntity(model), nil
 }
 
-func (m MissionsMySQL) ReadMission(ID int) (*entities.MissionsEntity, error) {
-	model, err := models.Missions(qm.Load(models.MissionRels.Tasks), qm.Where("id=?", ID)).One(m.ctx, m.db)
+func (m MissionsMySQL) ReadMission(ctx context.Context, ID int) (*entities.MissionsEntity, error) {
+	model, err := models.Missions(qm.Load(models.MissionRels.Tasks), qm.Where("id=?", ID)).One(ctx, m.db)
 	if err != nil {
 		return nil, err
 	}

@@ -1,7 +1,6 @@
 package mysql
 
 import (
-	"context"
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jansen44/nagasu-kujira/util"
@@ -11,7 +10,6 @@ import (
 
 func InitRepositories(config *util.Config) error {
 	logrus.Info("## Initializing MySQL DB Connection...")
-	mysqlContext := context.Background()
 	db, err := sql.Open("mysql", "root:root@tcp(localhost:3306)/nagasu?parseTime=true")
 	if err != nil {
 		return err
@@ -29,9 +27,9 @@ func InitRepositories(config *util.Config) error {
 	}
 
 	logrus.Info("## Initializing MySQL Repositories...")
-	config.ProjectRepository = NewProjectsMySQL(db, mysqlContext)
-	config.MissionRepository = NewMissionsMySQL(db, mysqlContext)
-	config.TaskRepository = NewTasksMySQL(db, mysqlContext)
+	config.ProjectRepository = NewProjectsMySQL(db)
+	config.MissionRepository = NewMissionsMySQL(db)
+	config.TaskRepository = NewTasksMySQL(db)
 
 	return nil
 }

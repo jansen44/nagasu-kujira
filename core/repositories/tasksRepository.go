@@ -1,9 +1,12 @@
 package repositories
 
-import "github.com/jansen44/nagasu-kujira/core/entities"
+import (
+	"context"
+	"github.com/jansen44/nagasu-kujira/core/entities"
+)
 
 type ITasksRepository interface {
-	CreateTask(task *entities.TasksEntity) (*entities.TasksEntity, error)
-	UpdateTask(task *entities.TasksEntity) (*entities.TasksEntity, error)
-	DeleteTask(ID int64) (*entities.TasksEntity, error)
+	CreateTask(ctx context.Context, task *entities.TasksEntity) (*entities.TasksEntity, error)
+	UpdateTask(ctx context.Context, task *entities.TasksEntity) (*entities.TasksEntity, error)
+	DeleteTask(ctx context.Context, ID int64) (*entities.TasksEntity, error)
 }

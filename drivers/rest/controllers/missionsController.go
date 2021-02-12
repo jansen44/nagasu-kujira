@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/jansen44/nagasu-kujira/drivers/rest/models"
 	"net/http"
@@ -18,7 +19,7 @@ func (api RestAPIController) GetMission(w http.ResponseWriter, r *http.Request) 
 		_ = json.NewEncoder(w).Encode(models.MissionResponse{Code: 403})
 		return
 	}
-	mission, err := api.missionsUseCases.GetMissionInfo(id)
+	mission, err := api.missionsUseCases.GetMissionInfo(context.Background(), id)
 	if err != nil {
 		_ = json.NewEncoder(w).Encode(models.MissionResponse{Code: 500, Error: err})
 	} else {
@@ -29,7 +30,7 @@ func (api RestAPIController) GetMission(w http.ResponseWriter, r *http.Request) 
 func (api RestAPIController) PostMission(w http.ResponseWriter, r *http.Request) {
 	var missionSerializer models.NewMissionSerializer
 	_ = json.NewDecoder(r.Body).Decode(&missionSerializer)
-	mission, err := api.missionsUseCases.AddNewMission(missionSerializer.Name, missionSerializer.ProjectID)
+	mission, err := api.missionsUseCases.AddNewMission(context.Background(), missionSerializer.Name, missionSerializer.ProjectID)
 	if err != nil {
 		_ = json.NewEncoder(w).Encode(models.MissionResponse{Code: 500, Error: err})
 	} else {
@@ -40,7 +41,7 @@ func (api RestAPIController) PostMission(w http.ResponseWriter, r *http.Request)
 func (api RestAPIController) PutMission(w http.ResponseWriter, r *http.Request) {
 	var missionSerializer models.UpdateMissionSerializer
 	_ = json.NewDecoder(r.Body).Decode(&missionSerializer)
-	mission, err := api.missionsUseCases.UpdateOneMission(missionSerializer.Name, missionSerializer.ID)
+	mission, err := api.missionsUseCases.UpdateOneMission(context.Background(), missionSerializer.Name, missionSerializer.ID)
 	if err != nil {
 		_ = json.NewEncoder(w).Encode(models.MissionResponse{Code: 500, Error: err})
 	} else {
@@ -59,7 +60,7 @@ func (api RestAPIController) DeleteMission(w http.ResponseWriter, r *http.Reques
 		_ = json.NewEncoder(w).Encode(models.MissionResponse{Code: 403})
 		return
 	}
-	mission, err := api.missionsUseCases.RemoveOneMission(id)
+	mission, err := api.missionsUseCases.RemoveOneMission(context.Background(), id)
 	if err != nil {
 		_ = json.NewEncoder(w).Encode(models.MissionResponse{Code: 500, Error: err})
 	} else {

@@ -11,13 +11,12 @@ import (
 )
 
 type ProjectsMySQL struct {
-	db  *sql.DB
-	ctx context.Context
+	db *sql.DB
 }
 
 // Util ===============================================================================
-func NewProjectsMySQL(db *sql.DB, ctx context.Context) repositories.IProjectsRepository {
-	return &ProjectsMySQL{db, ctx}
+func NewProjectsMySQL(db *sql.DB) repositories.IProjectsRepository {
+	return &ProjectsMySQL{db}
 }
 
 func projectModelToEntity(model *models.Project) *entities.ProjectsEntity {
@@ -44,50 +43,50 @@ func projectEntityToModel(entity *entities.ProjectsEntity, model *models.Project
 }
 
 // Repository Methods ==================================================================
-func (p ProjectsMySQL) CreateProject(project *entities.ProjectsEntity) (*entities.ProjectsEntity, error) {
+func (p ProjectsMySQL) CreateProject(ctx context.Context, project *entities.ProjectsEntity) (*entities.ProjectsEntity, error) {
 	model := models.Project{Name: project.Name}
-	err := model.Insert(p.ctx, p.db, boil.Infer())
+	err := model.Insert(ctx, p.db, boil.Infer())
 	if err != nil {
 		return nil, err
 	}
 	return projectModelToEntity(&model), nil
 }
 
-func (p ProjectsMySQL) ReadProjects() ([]entities.ProjectsEntity, error) {
-	modelProjects, err := models.Projects().All(p.ctx, p.db)
+func (p ProjectsMySQL) ReadProjects(ctx context.Context) ([]entities.ProjectsEntity, error) {
+	modelProjects, err := models.Projects().All(ctx, p.db)
 	if err != nil {
 		return nil, err
 	}
 	return projectModelSliceToEntity(modelProjects), nil
 }
 
-func (p ProjectsMySQL) UpdateProject(project *entities.ProjectsEntity) (*entities.ProjectsEntity, error) {
-	model, err := models.FindProject(p.ctx, p.db, project.ID)
+func (p ProjectsMySQL) UpdateProject(ctx context.Context, project *entities.ProjectsEntity) (*entities.ProjectsEntity, error) {
+	model, err := models.FindProject(ctx, p.db, project.ID)
 	if err != nil {
 		return nil, err
 	}
 	projectEntityToModel(project, model)
-	_, err = model.Update(p.ctx, p.db, boil.Infer())
+	_, err = model.Update(ctx, p.db, boil.Infer())
 	if err != nil {
 		return nil, err
 	}
 	return projectModelToEntity(model), nil
 }
 
-func (p ProjectsMySQL) DeleteProject(ID int) (*entities.ProjectsEntity, error) {
-	model, err := models.FindProject(p.ctx, p.db, ID)
+func (p ProjectsMySQL) DeleteProject(ctx context.Context, ID int) (*entities.ProjectsEntity, error) {
+	model, err := models.FindProject(ctx, p.db, ID)
 	if err != nil {
 		return nil, err
 	}
-	_, err = model.Delete(p.ctx, p.db)
+	_, err = model.Delete(ctx, p.db)
 	if err != nil {
 		return nil, err
 	}
 	return projectModelToEntity(model), nil
 }
 
-func (p ProjectsMySQL) ReadProject(projectID int) (*entities.ProjectsEntity, error) {
-	project, err := models.Projects(qm.Load(models.ProjectRels.Missions), qm.Where("id=?", projectID)).One(p.ctx, p.db)
+func (p ProjectsMySQL) ReadProject(ctx context.Context, projectID int) (*entities.ProjectsEntity, error) {
+	project, err := models.Projects(qm.Load(models.ProjectRels.Missions), qm.Where("id=?", projectID)).One(ctx, p.db)
 	if err != nil {
 		return nil, err
 	}

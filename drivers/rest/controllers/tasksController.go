@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/jansen44/nagasu-kujira/drivers/rest/models"
 	"net/http"
@@ -10,7 +11,7 @@ import (
 func (api RestAPIController) PortTask(w http.ResponseWriter, r *http.Request) {
 	var taskSerializer models.NewTaskSerializer
 	_ = json.NewDecoder(r.Body).Decode(&taskSerializer)
-	task, err := api.tasksUseCases.AddNewTask(taskSerializer.Name, taskSerializer.Description, taskSerializer.MissionID)
+	task, err := api.tasksUseCases.AddNewTask(context.Background(), taskSerializer.Name, taskSerializer.Description, taskSerializer.MissionID)
 	if err != nil {
 		_ = json.NewEncoder(w).Encode(models.TaskResponse{Code: 500, Error: err})
 	} else {
@@ -21,7 +22,7 @@ func (api RestAPIController) PortTask(w http.ResponseWriter, r *http.Request) {
 func (api RestAPIController) PutTask(w http.ResponseWriter, r *http.Request) {
 	var taskSerializer models.UpdateTaskSerializer
 	_ = json.NewDecoder(r.Body).Decode(&taskSerializer)
-	task, err := api.tasksUseCases.UpdateOneTask(taskSerializer.Name, taskSerializer.Description, taskSerializer.ID)
+	task, err := api.tasksUseCases.UpdateOneTask(context.Background(), taskSerializer.Name, taskSerializer.Description, taskSerializer.ID)
 	if err != nil {
 		_ = json.NewEncoder(w).Encode(models.TaskResponse{Code: 500, Error: err})
 	} else {
@@ -40,7 +41,7 @@ func (api RestAPIController) DeleteTask(w http.ResponseWriter, r *http.Request) 
 		_ = json.NewEncoder(w).Encode(models.TaskResponse{Code: 403})
 		return
 	}
-	task, err := api.tasksUseCases.RemoveOneTask(id)
+	task, err := api.tasksUseCases.RemoveOneTask(context.Background(), id)
 	if err != nil {
 		_ = json.NewEncoder(w).Encode(models.TaskResponse{Code: 500, Error: err})
 	} else {

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/jansen44/nagasu-kujira/drivers/rest/models"
 	"net/http"
@@ -8,7 +9,7 @@ import (
 )
 
 func (api RestAPIController) GetProjects(w http.ResponseWriter, _ *http.Request) {
-	projects, err := api.projectsUseCases.ListProjects()
+	projects, err := api.projectsUseCases.ListProjects(context.Background())
 	if err != nil {
 		_ = json.NewEncoder(w).Encode(models.SliceProjectResponse{Code: 500, Error: err})
 	} else {
@@ -19,7 +20,7 @@ func (api RestAPIController) GetProjects(w http.ResponseWriter, _ *http.Request)
 func (api RestAPIController) PostProject(w http.ResponseWriter, r *http.Request) {
 	var projectSerializer models.NewProjectSerializer
 	_ = json.NewDecoder(r.Body).Decode(&projectSerializer)
-	project, err := api.projectsUseCases.AddNewProject(projectSerializer.Name)
+	project, err := api.projectsUseCases.AddNewProject(context.Background(), projectSerializer.Name)
 	if err != nil {
 		_ = json.NewEncoder(w).Encode(models.ProjectResponse{Code: 500, Error: err})
 	} else {
@@ -30,7 +31,7 @@ func (api RestAPIController) PostProject(w http.ResponseWriter, r *http.Request)
 func (api RestAPIController) PutProject(w http.ResponseWriter, r *http.Request) {
 	var projectSerializer models.UpdateProjectSerializer
 	_ = json.NewDecoder(r.Body).Decode(&projectSerializer)
-	project, err := api.projectsUseCases.UpdateOneProject(projectSerializer.Name, projectSerializer.ID)
+	project, err := api.projectsUseCases.UpdateOneProject(context.Background(), projectSerializer.Name, projectSerializer.ID)
 	if err != nil {
 		_ = json.NewEncoder(w).Encode(models.ProjectResponse{Code: 500, Error: err})
 	} else {
@@ -49,7 +50,7 @@ func (api RestAPIController) DeleteProject(w http.ResponseWriter, r *http.Reques
 		_ = json.NewEncoder(w).Encode(models.ProjectResponse{Code: 403})
 		return
 	}
-	project, err := api.projectsUseCases.RemoveOneProject(id)
+	project, err := api.projectsUseCases.RemoveOneProject(context.Background(), id)
 	if err != nil {
 		_ = json.NewEncoder(w).Encode(models.ProjectResponse{Code: 500, Error: err})
 	} else {
@@ -68,7 +69,7 @@ func (api RestAPIController) GetProject(w http.ResponseWriter, r *http.Request) 
 		_ = json.NewEncoder(w).Encode(models.ProjectResponse{Code: 403})
 		return
 	}
-	project, err := api.projectsUseCases.GetProjectInfo(id)
+	project, err := api.projectsUseCases.GetProjectInfo(context.Background(), id)
 	if err != nil {
 		_ = json.NewEncoder(w).Encode(models.SliceProjectResponse{Code: 500, Error: err})
 	} else {

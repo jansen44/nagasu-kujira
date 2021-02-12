@@ -1,14 +1,15 @@
 package useCases
 
 import (
+	"context"
 	"github.com/jansen44/nagasu-kujira/core/entities"
 	"github.com/jansen44/nagasu-kujira/core/repositories"
 )
 
 type ITasksUseCases interface {
-	AddNewTask(name string, description string, missionID int) (*entities.TasksEntity, error)
-	UpdateOneTask(name, description string, ID int64) (*entities.TasksEntity, error)
-	RemoveOneTask(ID int64) (*entities.TasksEntity, error)
+	AddNewTask(ctx context.Context, name string, description string, missionID int) (*entities.TasksEntity, error)
+	UpdateOneTask(ctx context.Context, name, description string, ID int64) (*entities.TasksEntity, error)
+	RemoveOneTask(ctx context.Context, ID int64) (*entities.TasksEntity, error)
 }
 
 type TasksUseCases struct {
@@ -21,14 +22,14 @@ func NewTasksUseCases(tasksRepository repositories.ITasksRepository) ITasksUseCa
 	}
 }
 
-func (t TasksUseCases) AddNewTask(name string, description string, missionID int) (*entities.TasksEntity, error) {
-	return t.tasksRepository.CreateTask(&entities.TasksEntity{Name: name, Description: description, MissionID: missionID})
+func (t TasksUseCases) AddNewTask(ctx context.Context, name string, description string, missionID int) (*entities.TasksEntity, error) {
+	return t.tasksRepository.CreateTask(ctx, &entities.TasksEntity{Name: name, Description: description, MissionID: missionID})
 }
 
-func (t TasksUseCases) UpdateOneTask(name, description string, ID int64) (*entities.TasksEntity, error) {
-	return t.tasksRepository.UpdateTask(&entities.TasksEntity{ID: ID, Name: name, Description: description})
+func (t TasksUseCases) UpdateOneTask(ctx context.Context, name, description string, ID int64) (*entities.TasksEntity, error) {
+	return t.tasksRepository.UpdateTask(ctx, &entities.TasksEntity{ID: ID, Name: name, Description: description})
 }
 
-func (t TasksUseCases) RemoveOneTask(ID int64) (*entities.TasksEntity, error) {
-	return t.tasksRepository.DeleteTask(ID)
+func (t TasksUseCases) RemoveOneTask(ctx context.Context, ID int64) (*entities.TasksEntity, error) {
+	return t.tasksRepository.DeleteTask(ctx, ID)
 }
