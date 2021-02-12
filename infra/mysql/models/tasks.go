@@ -23,84 +23,69 @@ import (
 
 // Task is an object representing the database table.
 type Task struct {
-	ID          int64     `boil:"id" json:"id" toml:"id" yaml:"id"`
-	MissionID   int       `boil:"mission_id" json:"mission_id" toml:"mission_id" yaml:"mission_id"`
-	Name        string    `boil:"name" json:"name" toml:"name" yaml:"name"`
-	Description string    `boil:"description" json:"description" toml:"description" yaml:"description"`
-	CreatedAt   time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
-	UpdatedAt   time.Time `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
+	ID            int64     `boil:"id" json:"id" toml:"id" yaml:"id"`
+	MissionID     int       `boil:"mission_id" json:"mission_id" toml:"mission_id" yaml:"mission_id"`
+	Name          string    `boil:"name" json:"name" toml:"name" yaml:"name"`
+	Description   string    `boil:"description" json:"description" toml:"description" yaml:"description"`
+	CreatedAt     time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	UpdatedAt     time.Time `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
+	CurrentStatus int64     `boil:"current_status" json:"current_status" toml:"current_status" yaml:"current_status"`
 
 	R *taskR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L taskL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
 var TaskColumns = struct {
-	ID          string
-	MissionID   string
-	Name        string
-	Description string
-	CreatedAt   string
-	UpdatedAt   string
+	ID            string
+	MissionID     string
+	Name          string
+	Description   string
+	CreatedAt     string
+	UpdatedAt     string
+	CurrentStatus string
 }{
-	ID:          "id",
-	MissionID:   "mission_id",
-	Name:        "name",
-	Description: "description",
-	CreatedAt:   "created_at",
-	UpdatedAt:   "updated_at",
+	ID:            "id",
+	MissionID:     "mission_id",
+	Name:          "name",
+	Description:   "description",
+	CreatedAt:     "created_at",
+	UpdatedAt:     "updated_at",
+	CurrentStatus: "current_status",
 }
 
 // Generated where
 
-type whereHelperint64 struct{ field string }
-
-func (w whereHelperint64) EQ(x int64) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.EQ, x) }
-func (w whereHelperint64) NEQ(x int64) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
-func (w whereHelperint64) LT(x int64) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.LT, x) }
-func (w whereHelperint64) LTE(x int64) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.LTE, x) }
-func (w whereHelperint64) GT(x int64) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.GT, x) }
-func (w whereHelperint64) GTE(x int64) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.GTE, x) }
-func (w whereHelperint64) IN(slice []int64) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
-}
-func (w whereHelperint64) NIN(slice []int64) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
-}
-
 var TaskWhere = struct {
-	ID          whereHelperint64
-	MissionID   whereHelperint
-	Name        whereHelperstring
-	Description whereHelperstring
-	CreatedAt   whereHelpertime_Time
-	UpdatedAt   whereHelpertime_Time
+	ID            whereHelperint64
+	MissionID     whereHelperint
+	Name          whereHelperstring
+	Description   whereHelperstring
+	CreatedAt     whereHelpertime_Time
+	UpdatedAt     whereHelpertime_Time
+	CurrentStatus whereHelperint64
 }{
-	ID:          whereHelperint64{field: "`tasks`.`id`"},
-	MissionID:   whereHelperint{field: "`tasks`.`mission_id`"},
-	Name:        whereHelperstring{field: "`tasks`.`name`"},
-	Description: whereHelperstring{field: "`tasks`.`description`"},
-	CreatedAt:   whereHelpertime_Time{field: "`tasks`.`created_at`"},
-	UpdatedAt:   whereHelpertime_Time{field: "`tasks`.`updated_at`"},
+	ID:            whereHelperint64{field: "`tasks`.`id`"},
+	MissionID:     whereHelperint{field: "`tasks`.`mission_id`"},
+	Name:          whereHelperstring{field: "`tasks`.`name`"},
+	Description:   whereHelperstring{field: "`tasks`.`description`"},
+	CreatedAt:     whereHelpertime_Time{field: "`tasks`.`created_at`"},
+	UpdatedAt:     whereHelpertime_Time{field: "`tasks`.`updated_at`"},
+	CurrentStatus: whereHelperint64{field: "`tasks`.`current_status`"},
 }
 
 // TaskRels is where relationship names are stored.
 var TaskRels = struct {
-	Mission string
+	Mission                 string
+	CurrentStatusTaskStatus string
 }{
-	Mission: "Mission",
+	Mission:                 "Mission",
+	CurrentStatusTaskStatus: "CurrentStatusTaskStatus",
 }
 
 // taskR is where relationships are stored.
 type taskR struct {
-	Mission *Mission `boil:"Mission" json:"Mission" toml:"Mission" yaml:"Mission"`
+	Mission                 *Mission    `boil:"Mission" json:"Mission" toml:"Mission" yaml:"Mission"`
+	CurrentStatusTaskStatus *TaskStatus `boil:"CurrentStatusTaskStatus" json:"CurrentStatusTaskStatus" toml:"CurrentStatusTaskStatus" yaml:"CurrentStatusTaskStatus"`
 }
 
 // NewStruct creates a new relationship struct
@@ -112,8 +97,8 @@ func (*taskR) NewStruct() *taskR {
 type taskL struct{}
 
 var (
-	taskAllColumns            = []string{"id", "mission_id", "name", "description", "created_at", "updated_at"}
-	taskColumnsWithoutDefault = []string{"mission_id", "name", "description"}
+	taskAllColumns            = []string{"id", "mission_id", "name", "description", "created_at", "updated_at", "current_status"}
+	taskColumnsWithoutDefault = []string{"mission_id", "name", "description", "current_status"}
 	taskColumnsWithDefault    = []string{"id", "created_at", "updated_at"}
 	taskPrimaryKeyColumns     = []string{"id"}
 )
@@ -407,6 +392,20 @@ func (o *Task) Mission(mods ...qm.QueryMod) missionQuery {
 	return query
 }
 
+// CurrentStatusTaskStatus pointed to by the foreign key.
+func (o *Task) CurrentStatusTaskStatus(mods ...qm.QueryMod) taskStatusQuery {
+	queryMods := []qm.QueryMod{
+		qm.Where("`id` = ?", o.CurrentStatus),
+	}
+
+	queryMods = append(queryMods, mods...)
+
+	query := TaskStatuses(queryMods...)
+	queries.SetFrom(query.Query, "`task_status`")
+
+	return query
+}
+
 // LoadMission allows an eager lookup of values, cached into the
 // loaded structs of the objects. This is for an N-1 relationship.
 func (taskL) LoadMission(ctx context.Context, e boil.ContextExecutor, singular bool, maybeTask interface{}, mods queries.Applicator) error {
@@ -511,6 +510,110 @@ func (taskL) LoadMission(ctx context.Context, e boil.ContextExecutor, singular b
 	return nil
 }
 
+// LoadCurrentStatusTaskStatus allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for an N-1 relationship.
+func (taskL) LoadCurrentStatusTaskStatus(ctx context.Context, e boil.ContextExecutor, singular bool, maybeTask interface{}, mods queries.Applicator) error {
+	var slice []*Task
+	var object *Task
+
+	if singular {
+		object = maybeTask.(*Task)
+	} else {
+		slice = *maybeTask.(*[]*Task)
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &taskR{}
+		}
+		args = append(args, object.CurrentStatus)
+
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &taskR{}
+			}
+
+			for _, a := range args {
+				if a == obj.CurrentStatus {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.CurrentStatus)
+
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(
+		qm.From(`task_status`),
+		qm.WhereIn(`task_status.id in ?`, args...),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load TaskStatus")
+	}
+
+	var resultSlice []*TaskStatus
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice TaskStatus")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results of eager load for task_status")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for task_status")
+	}
+
+	if len(taskAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
+				return err
+			}
+		}
+	}
+
+	if len(resultSlice) == 0 {
+		return nil
+	}
+
+	if singular {
+		foreign := resultSlice[0]
+		object.R.CurrentStatusTaskStatus = foreign
+		if foreign.R == nil {
+			foreign.R = &taskStatusR{}
+		}
+		foreign.R.CurrentStatusTasks = append(foreign.R.CurrentStatusTasks, object)
+		return nil
+	}
+
+	for _, local := range slice {
+		for _, foreign := range resultSlice {
+			if local.CurrentStatus == foreign.ID {
+				local.R.CurrentStatusTaskStatus = foreign
+				if foreign.R == nil {
+					foreign.R = &taskStatusR{}
+				}
+				foreign.R.CurrentStatusTasks = append(foreign.R.CurrentStatusTasks, local)
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
 // SetMission of the task to the related item.
 // Sets o.R.Mission to related.
 // Adds o to related.R.Tasks.
@@ -553,6 +656,53 @@ func (o *Task) SetMission(ctx context.Context, exec boil.ContextExecutor, insert
 		}
 	} else {
 		related.R.Tasks = append(related.R.Tasks, o)
+	}
+
+	return nil
+}
+
+// SetCurrentStatusTaskStatus of the task to the related item.
+// Sets o.R.CurrentStatusTaskStatus to related.
+// Adds o to related.R.CurrentStatusTasks.
+func (o *Task) SetCurrentStatusTaskStatus(ctx context.Context, exec boil.ContextExecutor, insert bool, related *TaskStatus) error {
+	var err error
+	if insert {
+		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
+			return errors.Wrap(err, "failed to insert into foreign table")
+		}
+	}
+
+	updateQuery := fmt.Sprintf(
+		"UPDATE `tasks` SET %s WHERE %s",
+		strmangle.SetParamNames("`", "`", 0, []string{"current_status"}),
+		strmangle.WhereClause("`", "`", 0, taskPrimaryKeyColumns),
+	)
+	values := []interface{}{related.ID, o.ID}
+
+	if boil.IsDebug(ctx) {
+		writer := boil.DebugWriterFrom(ctx)
+		fmt.Fprintln(writer, updateQuery)
+		fmt.Fprintln(writer, values)
+	}
+	if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+		return errors.Wrap(err, "failed to update local table")
+	}
+
+	o.CurrentStatus = related.ID
+	if o.R == nil {
+		o.R = &taskR{
+			CurrentStatusTaskStatus: related,
+		}
+	} else {
+		o.R.CurrentStatusTaskStatus = related
+	}
+
+	if related.R == nil {
+		related.R = &taskStatusR{
+			CurrentStatusTasks: TaskSlice{o},
+		}
+	} else {
+		related.R.CurrentStatusTasks = append(related.R.CurrentStatusTasks, o)
 	}
 
 	return nil

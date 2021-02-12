@@ -10,5 +10,7 @@ func TestUpsert(t *testing.T) {
 
 	t.Run("Projects", testProjectsUpsert)
 
+	t.Run("TaskStatuses", testTaskStatusesUpsert)
+
 	t.Run("Tasks", testTasksUpsert)
 }

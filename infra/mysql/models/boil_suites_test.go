@@ -14,66 +14,77 @@ import "testing"
 func TestParent(t *testing.T) {
 	t.Run("Missions", testMissions)
 	t.Run("Projects", testProjects)
+	t.Run("TaskStatuses", testTaskStatuses)
 	t.Run("Tasks", testTasks)
 }
 
 func TestDelete(t *testing.T) {
 	t.Run("Missions", testMissionsDelete)
 	t.Run("Projects", testProjectsDelete)
+	t.Run("TaskStatuses", testTaskStatusesDelete)
 	t.Run("Tasks", testTasksDelete)
 }
 
 func TestQueryDeleteAll(t *testing.T) {
 	t.Run("Missions", testMissionsQueryDeleteAll)
 	t.Run("Projects", testProjectsQueryDeleteAll)
+	t.Run("TaskStatuses", testTaskStatusesQueryDeleteAll)
 	t.Run("Tasks", testTasksQueryDeleteAll)
 }
 
 func TestSliceDeleteAll(t *testing.T) {
 	t.Run("Missions", testMissionsSliceDeleteAll)
 	t.Run("Projects", testProjectsSliceDeleteAll)
+	t.Run("TaskStatuses", testTaskStatusesSliceDeleteAll)
 	t.Run("Tasks", testTasksSliceDeleteAll)
 }
 
 func TestExists(t *testing.T) {
 	t.Run("Missions", testMissionsExists)
 	t.Run("Projects", testProjectsExists)
+	t.Run("TaskStatuses", testTaskStatusesExists)
 	t.Run("Tasks", testTasksExists)
 }
 
 func TestFind(t *testing.T) {
 	t.Run("Missions", testMissionsFind)
 	t.Run("Projects", testProjectsFind)
+	t.Run("TaskStatuses", testTaskStatusesFind)
 	t.Run("Tasks", testTasksFind)
 }
 
 func TestBind(t *testing.T) {
 	t.Run("Missions", testMissionsBind)
 	t.Run("Projects", testProjectsBind)
+	t.Run("TaskStatuses", testTaskStatusesBind)
 	t.Run("Tasks", testTasksBind)
 }
 
 func TestOne(t *testing.T) {
 	t.Run("Missions", testMissionsOne)
 	t.Run("Projects", testProjectsOne)
+	t.Run("TaskStatuses", testTaskStatusesOne)
 	t.Run("Tasks", testTasksOne)
 }
 
 func TestAll(t *testing.T) {
 	t.Run("Missions", testMissionsAll)
 	t.Run("Projects", testProjectsAll)
+	t.Run("TaskStatuses", testTaskStatusesAll)
 	t.Run("Tasks", testTasksAll)
 }
 
 func TestCount(t *testing.T) {
 	t.Run("Missions", testMissionsCount)
 	t.Run("Projects", testProjectsCount)
+	t.Run("TaskStatuses", testTaskStatusesCount)
 	t.Run("Tasks", testTasksCount)
 }
 
 func TestHooks(t *testing.T) {
 	t.Run("Missions", testMissionsHooks)
 	t.Run("Projects", testProjectsHooks)
+	t.Run("TaskStatuses", testTaskStatusesHooks)
 	t.Run("Tasks", testTasksHooks)
 }
 
@@ -82,6 +93,8 @@ func TestInsert(t *testing.T) {
 	t.Run("Missions", testMissionsInsertWhitelist)
 	t.Run("Projects", testProjectsInsert)
 	t.Run("Projects", testProjectsInsertWhitelist)
+	t.Run("TaskStatuses", testTaskStatusesInsert)
+	t.Run("TaskStatuses", testTaskStatusesInsertWhitelist)
 	t.Run("Tasks", testTasksInsert)
 	t.Run("Tasks", testTasksInsertWhitelist)
 }
@@ -90,7 +103,9 @@ func TestInsert(t *testing.T) {
 // or deadlocks can occur.
 func TestToOne(t *testing.T) {
 	t.Run("MissionToProjectUsingProject", testMissionToOneProjectUsingProject)
+	t.Run("TaskStatusToMissionUsingMission", testTaskStatusToOneMissionUsingMission)
 	t.Run("TaskToMissionUsingMission", testTaskToOneMissionUsingMission)
+	t.Run("TaskToTaskStatusUsingCurrentStatusTaskStatus", testTaskToOneTaskStatusUsingCurrentStatusTaskStatus)
 }
 
 // TestOneToOne tests cannot be run in parallel
@@ -100,15 +115,19 @@ func TestOneToOne(t *testing.T) {}
 // TestToMany tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToMany(t *testing.T) {
+	t.Run("MissionToTaskStatuses", testMissionToManyTaskStatuses)
 	t.Run("MissionToTasks", testMissionToManyTasks)
 	t.Run("ProjectToMissions", testProjectToManyMissions)
+	t.Run("TaskStatusToCurrentStatusTasks", testTaskStatusToManyCurrentStatusTasks)
 }
 
 // TestToOneSet tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToOneSet(t *testing.T) {
 	t.Run("MissionToProjectUsingMissions", testMissionToOneSetOpProjectUsingProject)
+	t.Run("TaskStatusToMissionUsingTaskStatuses", testTaskStatusToOneSetOpMissionUsingMission)
 	t.Run("TaskToMissionUsingTasks", testTaskToOneSetOpMissionUsingMission)
+	t.Run("TaskToTaskStatusUsingCurrentStatusTasks", testTaskToOneSetOpTaskStatusUsingCurrentStatusTaskStatus)
 }
 
 // TestToOneRemove tests cannot be run in parallel
@@ -126,8 +145,10 @@ func TestOneToOneRemove(t *testing.T) {}
 // TestToManyAdd tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToManyAdd(t *testing.T) {
+	t.Run("MissionToTaskStatuses", testMissionToManyAddOpTaskStatuses)
 	t.Run("MissionToTasks", testMissionToManyAddOpTasks)
 	t.Run("ProjectToMissions", testProjectToManyAddOpMissions)
+	t.Run("TaskStatusToCurrentStatusTasks", testTaskStatusToManyAddOpCurrentStatusTasks)
 }
 
 // TestToManySet tests cannot be run in parallel
@@ -141,29 +162,34 @@ func TestToManyRemove(t *testing.T) {}
 func TestReload(t *testing.T) {
 	t.Run("Missions", testMissionsReload)
 	t.Run("Projects", testProjectsReload)
+	t.Run("TaskStatuses", testTaskStatusesReload)
 	t.Run("Tasks", testTasksReload)
 }
 
 func TestReloadAll(t *testing.T) {
 	t.Run("Missions", testMissionsReloadAll)
 	t.Run("Projects", testProjectsReloadAll)
+	t.Run("TaskStatuses", testTaskStatusesReloadAll)
 	t.Run("Tasks", testTasksReloadAll)
 }
 
 func TestSelect(t *testing.T) {
 	t.Run("Missions", testMissionsSelect)
 	t.Run("Projects", testProjectsSelect)
+	t.Run("TaskStatuses", testTaskStatusesSelect)
 	t.Run("Tasks", testTasksSelect)
 }
 
 func TestUpdate(t *testing.T) {
 	t.Run("Missions", testMissionsUpdate)
 	t.Run("Projects", testProjectsUpdate)
+	t.Run("TaskStatuses", testTaskStatusesUpdate)
 	t.Run("Tasks", testTasksUpdate)
 }
 
 func TestSliceUpdateAll(t *testing.T) {
 	t.Run("Missions", testMissionsSliceUpdateAll)
 	t.Run("Projects", testProjectsSliceUpdateAll)
+	t.Run("TaskStatuses", testTaskStatusesSliceUpdateAll)
 	t.Run("Tasks", testTasksSliceUpdateAll)
 }

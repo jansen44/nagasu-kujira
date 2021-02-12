@@ -494,6 +494,84 @@ func testMissionsInsertWhitelist(t *testing.T) {
 	}
 }
 
+func testMissionToManyTaskStatuses(t *testing.T) {
+	var err error
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+
+	var a Mission
+	var b, c TaskStatus
+
+	seed := randomize.NewSeed()
+	if err = randomize.Struct(seed, &a, missionDBTypes, true, missionColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Mission struct: %s", err)
+	}
+
+	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	if err = randomize.Struct(seed, &b, taskStatusDBTypes, false, taskStatusColumnsWithDefault...); err != nil {
+		t.Fatal(err)
+	}
+	if err = randomize.Struct(seed, &c, taskStatusDBTypes, false, taskStatusColumnsWithDefault...); err != nil {
+		t.Fatal(err)
+	}
+
+	b.MissionID = a.ID
+	c.MissionID = a.ID
+
+	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+	if err = c.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	check, err := a.TaskStatuses().All(ctx, tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	bFound, cFound := false, false
+	for _, v := range check {
+		if v.MissionID == b.MissionID {
+			bFound = true
+		}
+		if v.MissionID == c.MissionID {
+			cFound = true
+		}
+	}
+
+	if !bFound {
+		t.Error("expected to find b")
+	}
+	if !cFound {
+		t.Error("expected to find c")
+	}
+
+	slice := MissionSlice{&a}
+	if err = a.L.LoadTaskStatuses(ctx, tx, false, (*[]*Mission)(&slice), nil); err != nil {
+		t.Fatal(err)
+	}
+	if got := len(a.R.TaskStatuses); got != 2 {
+		t.Error("number of eager loaded records wrong, got:", got)
+	}
+
+	a.R.TaskStatuses = nil
+	if err = a.L.LoadTaskStatuses(ctx, tx, true, &a, nil); err != nil {
+		t.Fatal(err)
+	}
+	if got := len(a.R.TaskStatuses); got != 2 {
+		t.Error("number of eager loaded records wrong, got:", got)
+	}
+
+	if t.Failed() {
+		t.Logf("%#v", check)
+	}
+}
+
 func testMissionToManyTasks(t *testing.T) {
 	var err error
 	ctx := context.Background()
@@ -572,6 +650,81 @@ func testMissionToManyTasks(t *testing.T) {
 	}
 }
 
+func testMissionToManyAddOpTaskStatuses(t *testing.T) {
+	var err error
+
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+
+	var a Mission
+	var b, c, d, e TaskStatus
+
+	seed := randomize.NewSeed()
+	if err = randomize.Struct(seed, &a, missionDBTypes, false, strmangle.SetComplement(missionPrimaryKeyColumns, missionColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+	foreigners := []*TaskStatus{&b, &c, &d, &e}
+	for _, x := range foreigners {
+		if err = randomize.Struct(seed, x, taskStatusDBTypes, false, strmangle.SetComplement(taskStatusPrimaryKeyColumns, taskStatusColumnsWithoutDefault)...); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+	if err = c.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	foreignersSplitByInsertion := [][]*TaskStatus{
+		{&b, &c},
+		{&d, &e},
+	}
+
+	for i, x := range foreignersSplitByInsertion {
+		err = a.AddTaskStatuses(ctx, tx, i != 0, x...)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		first := x[0]
+		second := x[1]
+
+		if a.ID != first.MissionID {
+			t.Error("foreign key was wrong value", a.ID, first.MissionID)
+		}
+		if a.ID != second.MissionID {
+			t.Error("foreign key was wrong value", a.ID, second.MissionID)
+		}
+
+		if first.R.Mission != &a {
+			t.Error("relationship was not added properly to the foreign slice")
+		}
+		if second.R.Mission != &a {
+			t.Error("relationship was not added properly to the foreign slice")
+		}
+
+		if a.R.TaskStatuses[i*2] != first {
+			t.Error("relationship struct slice not set to correct value")
+		}
+		if a.R.TaskStatuses[i*2+1] != second {
+			t.Error("relationship struct slice not set to correct value")
+		}
+
+		count, err := a.TaskStatuses().Count(ctx, tx)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if want := int64((i + 1) * 2); count != want {
+			t.Error("want", want, "got", count)
+		}
+	}
+}
 func testMissionToManyAddOpTasks(t *testing.T) {
 	var err error
 

@@ -545,6 +545,57 @@ func testTaskToOneMissionUsingMission(t *testing.T) {
 	}
 }
 
+func testTaskToOneTaskStatusUsingCurrentStatusTaskStatus(t *testing.T) {
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+
+	var local Task
+	var foreign TaskStatus
+
+	seed := randomize.NewSeed()
+	if err := randomize.Struct(seed, &local, taskDBTypes, false, taskColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Task struct: %s", err)
+	}
+	if err := randomize.Struct(seed, &foreign, taskStatusDBTypes, false, taskStatusColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize TaskStatus struct: %s", err)
+	}
+
+	if err := foreign.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	local.CurrentStatus = foreign.ID
+	if err := local.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	check, err := local.CurrentStatusTaskStatus().One(ctx, tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if check.ID != foreign.ID {
+		t.Errorf("want: %v, got %v", foreign.ID, check.ID)
+	}
+
+	slice := TaskSlice{&local}
+	if err = local.L.LoadCurrentStatusTaskStatus(ctx, tx, false, (*[]*Task)(&slice), nil); err != nil {
+		t.Fatal(err)
+	}
+	if local.R.CurrentStatusTaskStatus == nil {
+		t.Error("struct should have been eager loaded")
+	}
+
+	local.R.CurrentStatusTaskStatus = nil
+	if err = local.L.LoadCurrentStatusTaskStatus(ctx, tx, true, &local, nil); err != nil {
+		t.Fatal(err)
+	}
+	if local.R.CurrentStatusTaskStatus == nil {
+		t.Error("struct should have been eager loaded")
+	}
+}
+
 func testTaskToOneSetOpMissionUsingMission(t *testing.T) {
 	var err error
 
@@ -599,6 +650,63 @@ func testTaskToOneSetOpMissionUsingMission(t *testing.T) {
 
 		if a.MissionID != x.ID {
 			t.Error("foreign key was wrong value", a.MissionID, x.ID)
+		}
+	}
+}
+func testTaskToOneSetOpTaskStatusUsingCurrentStatusTaskStatus(t *testing.T) {
+	var err error
+
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+
+	var a Task
+	var b, c TaskStatus
+
+	seed := randomize.NewSeed()
+	if err = randomize.Struct(seed, &a, taskDBTypes, false, strmangle.SetComplement(taskPrimaryKeyColumns, taskColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+	if err = randomize.Struct(seed, &b, taskStatusDBTypes, false, strmangle.SetComplement(taskStatusPrimaryKeyColumns, taskStatusColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+	if err = randomize.Struct(seed, &c, taskStatusDBTypes, false, strmangle.SetComplement(taskStatusPrimaryKeyColumns, taskStatusColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	for i, x := range []*TaskStatus{&b, &c} {
+		err = a.SetCurrentStatusTaskStatus(ctx, tx, i != 0, x)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if a.R.CurrentStatusTaskStatus != x {
+			t.Error("relationship struct not set to correct value")
+		}
+
+		if x.R.CurrentStatusTasks[0] != &a {
+			t.Error("failed to append to foreign relationship struct")
+		}
+		if a.CurrentStatus != x.ID {
+			t.Error("foreign key was wrong value", a.CurrentStatus)
+		}
+
+		zero := reflect.Zero(reflect.TypeOf(a.CurrentStatus))
+		reflect.Indirect(reflect.ValueOf(&a.CurrentStatus)).Set(zero)
+
+		if err = a.Reload(ctx, tx); err != nil {
+			t.Fatal("failed to reload", err)
+		}
+
+		if a.CurrentStatus != x.ID {
+			t.Error("foreign key was wrong value", a.CurrentStatus, x.ID)
 		}
 	}
 }
@@ -677,7 +785,7 @@ func testTasksSelect(t *testing.T) {
 }
 
 var (
-	taskDBTypes = map[string]string{`ID`: `bigint`, `MissionID`: `int`, `Name`: `varchar`, `Description`: `varchar`, `CreatedAt`: `timestamp`, `UpdatedAt`: `timestamp`}
+	taskDBTypes = map[string]string{`ID`: `bigint`, `MissionID`: `int`, `Name`: `varchar`, `Description`: `varchar`, `CreatedAt`: `timestamp`, `UpdatedAt`: `timestamp`, `CurrentStatus`: `bigint`}
 	_           = bytes.MinRead
 )
 
