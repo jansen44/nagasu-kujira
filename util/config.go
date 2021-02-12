@@ -9,9 +9,10 @@ import (
 type Config struct {
 	fs *flag.FlagSet
 
-	Storage  string `yaml:"data-source"`
-	Driver   string `yaml:"driver"`
-	RestPort string `yaml:"port"`
+	Storage       string `yaml:"data-source"`
+	Driver        string `yaml:"driver"`
+	RestPort      string `yaml:"port"`
+	ShouldMigrate bool   `yaml:"should-migrate"`
 
 	// Repositories ==================
 	ProjectRepository repositories.IProjectsRepository
@@ -24,6 +25,7 @@ func NewConfig() (*Config, error) {
 	config.fs.StringVar(&config.Storage, "storage", "mysql", "set what storage will be used (defaults to 'mysql')")
 	config.fs.StringVar(&config.Driver, "driver", "rest", "set what driver will be initiated (defaults to 'rest')")
 	config.fs.StringVar(&config.RestPort, "restPort", "8080", "set what port restApi should listen on (defaults to 8080")
+	config.fs.BoolVar(&config.ShouldMigrate, "migrate", false, "set if the storage should execute migrations (defaults to false)")
 	err := config.fs.Parse(os.Args[1:])
 	if err != nil {
 		return nil, err

@@ -17,13 +17,15 @@ func InitRepositories(config *util.Config) error {
 		return err
 	}
 
-	logrus.Info("## Handling MySQL migrations...")
-	migrations := &migrate.FileMigrationSource{
-		Dir: "infra/mysql/migrations",
-	}
-	_, err = migrate.Exec(db, "mysql", migrations, migrate.Up)
-	if err != nil {
-		return err
+	if config.ShouldMigrate {
+		logrus.Info("## Handling MySQL migrations...")
+		migrations := &migrate.FileMigrationSource{
+			Dir: "infra/mysql/migrations",
+		}
+		_, err = migrate.Exec(db, "mysql", migrations, migrate.Up)
+		if err != nil {
+			return err
+		}
 	}
 
 	logrus.Info("## Initializing MySQL Repositories...")
