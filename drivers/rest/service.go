@@ -15,7 +15,7 @@ type APIClient struct {
 
 func NewRestAPIClient(config *util.Config) drivers.IDrivers {
 	return &APIClient{
-		port: "8080",
+		port: config.RestPort,
 		controller: controllers.NewRestAPIController(
 			config.ProjectRepository,
 			config.MissionRepository,
