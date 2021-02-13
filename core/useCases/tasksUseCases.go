@@ -7,8 +7,8 @@ import (
 )
 
 type ITasksUseCases interface {
-	AddNewTask(ctx context.Context, name string, description string, missionID int) (*entities.TasksEntity, error)
-	UpdateOneTask(ctx context.Context, name, description string, ID int64) (*entities.TasksEntity, error)
+	AddNewTask(ctx context.Context, name string, description string, missionID int, statusID int64) (*entities.TasksEntity, error)
+	UpdateOneTask(ctx context.Context, name, description string, statusID, ID int64) (*entities.TasksEntity, error)
 	RemoveOneTask(ctx context.Context, ID int64) (*entities.TasksEntity, error)
 }
 
@@ -22,12 +22,22 @@ func NewTasksUseCases(tasksRepository repositories.ITasksRepository) ITasksUseCa
 	}
 }
 
-func (t TasksUseCases) AddNewTask(ctx context.Context, name string, description string, missionID int) (*entities.TasksEntity, error) {
-	return t.tasksRepository.CreateTask(ctx, &entities.TasksEntity{Name: name, Description: description, MissionID: missionID})
+func (t TasksUseCases) AddNewTask(ctx context.Context, name string, description string, missionID int, statusID int64) (*entities.TasksEntity, error) {
+	return t.tasksRepository.CreateTask(ctx, &entities.TasksEntity{
+		Name:         name,
+		Description:  description,
+		MissionID:    missionID,
+		TaskStatusID: statusID,
+	})
 }
 
-func (t TasksUseCases) UpdateOneTask(ctx context.Context, name, description string, ID int64) (*entities.TasksEntity, error) {
-	return t.tasksRepository.UpdateTask(ctx, &entities.TasksEntity{ID: ID, Name: name, Description: description})
+func (t TasksUseCases) UpdateOneTask(ctx context.Context, name, description string, statusID, ID int64) (*entities.TasksEntity, error) {
+	return t.tasksRepository.UpdateTask(ctx, &entities.TasksEntity{
+		ID:           ID,
+		Name:         name,
+		Description:  description,
+		TaskStatusID: statusID,
+	})
 }
 
 func (t TasksUseCases) RemoveOneTask(ctx context.Context, ID int64) (*entities.TasksEntity, error) {

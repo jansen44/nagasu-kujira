@@ -11,7 +11,13 @@ import (
 func (api RestAPIController) PortTask(w http.ResponseWriter, r *http.Request) {
 	var taskSerializer models.NewTaskSerializer
 	_ = json.NewDecoder(r.Body).Decode(&taskSerializer)
-	task, err := api.tasksUseCases.AddNewTask(context.Background(), taskSerializer.Name, taskSerializer.Description, taskSerializer.MissionID)
+	task, err := api.tasksUseCases.AddNewTask(
+		context.Background(),
+		taskSerializer.Name,
+		taskSerializer.Description,
+		taskSerializer.MissionID,
+		taskSerializer.StatusID,
+	)
 	if err != nil {
 		_ = json.NewEncoder(w).Encode(models.TaskResponse{Code: 500, Error: err})
 	} else {
@@ -22,7 +28,13 @@ func (api RestAPIController) PortTask(w http.ResponseWriter, r *http.Request) {
 func (api RestAPIController) PutTask(w http.ResponseWriter, r *http.Request) {
 	var taskSerializer models.UpdateTaskSerializer
 	_ = json.NewDecoder(r.Body).Decode(&taskSerializer)
-	task, err := api.tasksUseCases.UpdateOneTask(context.Background(), taskSerializer.Name, taskSerializer.Description, taskSerializer.ID)
+	task, err := api.tasksUseCases.UpdateOneTask(
+		context.Background(),
+		taskSerializer.Name,
+		taskSerializer.Description,
+		taskSerializer.StatusID,
+		taskSerializer.ID,
+	)
 	if err != nil {
 		_ = json.NewEncoder(w).Encode(models.TaskResponse{Code: 500, Error: err})
 	} else {

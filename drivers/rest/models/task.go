@@ -18,10 +18,12 @@ type NewTaskSerializer struct {
 	MissionID   int    `json:"missionId"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
+	StatusID    int64  `json:"statusId"`
 }
 
 type UpdateTaskSerializer struct {
 	ID          int64  `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
+	StatusID    int64  `json:"statusId"`
 }
