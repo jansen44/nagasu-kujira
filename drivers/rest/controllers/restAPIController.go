@@ -24,19 +24,24 @@ type IRestAPIController interface {
 }
 
 type RestAPIController struct {
-	projectsUseCases useCases.IProjectsUseCases
-	missionsUseCases useCases.IMissionsUseCases
-	tasksUseCases    useCases.ITasksUseCases
+	projectsUseCases   useCases.IProjectsUseCases
+	missionsUseCases   useCases.IMissionsUseCases
+	tasksUseCases      useCases.ITasksUseCases
+	taskStatusUseCases useCases.ITasksStatusUseCases
 }
 
 func NewRestAPIController(
 	projectsRepository repositories.IProjectsRepository,
 	missionsRepository repositories.IMissionsRepository,
 	tasksRepository repositories.ITasksRepository,
+	taskStatusRepository repositories.ITaskStatusRepository,
 ) IRestAPIController {
+	taskStatusUseCases := useCases.NewTaskStatusUseCases(taskStatusRepository)
+
 	return &RestAPIController{
-		projectsUseCases: useCases.NewProjectsUseCases(projectsRepository),
-		missionsUseCases: useCases.NewMissionsUseCases(missionsRepository),
-		tasksUseCases:    useCases.NewTasksUseCases(tasksRepository),
+		projectsUseCases:   useCases.NewProjectsUseCases(projectsRepository),
+		missionsUseCases:   useCases.NewMissionsUseCases(missionsRepository, taskStatusUseCases),
+		tasksUseCases:      useCases.NewTasksUseCases(tasksRepository),
+		taskStatusUseCases: taskStatusUseCases,
 	}
 }

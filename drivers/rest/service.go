@@ -20,6 +20,7 @@ func NewRestAPIClient(config *util.Config) drivers.IDrivers {
 			config.ProjectRepository,
 			config.MissionRepository,
 			config.TaskRepository,
+			config.TaskStatusRepository,
 		),
 	}
 }

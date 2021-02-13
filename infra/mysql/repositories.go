@@ -30,6 +30,7 @@ func InitRepositories(config *util.Config) error {
 	config.ProjectRepository = NewProjectsMySQL(db)
 	config.MissionRepository = NewMissionsMySQL(db)
 	config.TaskRepository = NewTasksMySQL(db)
+	config.TaskStatusRepository = NewTaskStatusMySQL(db)
 
 	return nil
 }

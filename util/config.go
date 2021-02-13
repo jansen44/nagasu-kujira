@@ -15,9 +15,10 @@ type Config struct {
 	ShouldMigrate bool   `yaml:"should-migrate"`
 
 	// Repositories ==================
-	ProjectRepository repositories.IProjectsRepository
-	MissionRepository repositories.IMissionsRepository
-	TaskRepository    repositories.ITasksRepository
+	ProjectRepository    repositories.IProjectsRepository
+	MissionRepository    repositories.IMissionsRepository
+	TaskRepository       repositories.ITasksRepository
+	TaskStatusRepository repositories.ITaskStatusRepository
 }
 
 func NewConfig() (*Config, error) {

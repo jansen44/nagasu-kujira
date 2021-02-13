@@ -14,17 +14,30 @@ type IMissionsUseCases interface {
 }
 
 type MissionsUseCases struct {
+	taskStatusUseCases ITasksStatusUseCases
 	missionsRepository repositories.IMissionsRepository
 }
 
-func NewMissionsUseCases(missionsRepository repositories.IMissionsRepository) IMissionsUseCases {
+func NewMissionsUseCases(missionsRepository repositories.IMissionsRepository, taskStatusUseCases ITasksStatusUseCases) IMissionsUseCases {
 	return &MissionsUseCases{
 		missionsRepository: missionsRepository,
+		taskStatusUseCases: taskStatusUseCases,
 	}
 }
 
 func (m MissionsUseCases) AddNewMission(ctx context.Context, name string, projectId int) (*entities.MissionsEntity, error) {
-	return m.missionsRepository.CreateMission(ctx, &entities.MissionsEntity{Name: name, ProjectID: projectId})
+	mission, err := m.missionsRepository.CreateMission(ctx, &entities.MissionsEntity{Name: name, ProjectID: projectId})
+	if err != nil {
+		return nil, err
+	}
+	for i, taskStatusName := range entities.GetDefaultTaskStatuses() {
+		status, err := m.taskStatusUseCases.AddNewTaskStatus(ctx, string(taskStatusName), i, mission.ID)
+		if err != nil {
+			return nil, err
+		}
+		mission.TaskStatus = append(mission.TaskStatus, status)
+	}
+	return mission, nil
 }
 
 func (m MissionsUseCases) UpdateOneMission(ctx context.Context, name string, ID int) (*entities.MissionsEntity, error) {
