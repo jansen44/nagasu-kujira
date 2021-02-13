@@ -10,3 +10,15 @@ NagasuKujira長須鯨 is part of the Kujira project as the main backend service.
 
 ### 長須鯨 Roadmap
 You can check all roadmap and current development status on our [Github Project](https://github.com/jansen44/nagasu-kujira/projects/1)
+
+### Running 長須鯨
+Before running, you need to satisfy the selected driver and selected storage dependencies. 
+Currently, there is only one driver (RestAPI Server) and one storage (MySQL). RestAPI Server works as is, you can set the default listening port with some flags.
+For MySQL Storage you need one MySQL server running with a database called ```nagasu```. 
+Now it's only able to run the server locally, but feel free to edit ```infra/repositories.go (line 13)``` to connect to a remote server. I intend to add a flag to set this in a near future, so don't worry about it.
+You also need to run database migrations before running... Or you can just add a ```-migrate``` flag and it will work as it was supposed to.
+
+```bash
+go run main.go -migrate -restPort=3030 -storage=mysql -driver=rest
+```
+The above command runs Nagasu with automatic storage migrations, using MySQL as storage and running a RestAPI Server (listening on port ```3030```).
