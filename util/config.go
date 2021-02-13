@@ -23,10 +23,10 @@ type Config struct {
 
 func NewConfig() (*Config, error) {
 	config := Config{fs: flag.NewFlagSet("kujira", flag.ExitOnError)}
-	config.fs.StringVar(&config.Storage, "storage", "mysql", "set what storage will be used (defaults to 'mysql')")
-	config.fs.StringVar(&config.Driver, "driver", "rest", "set what driver will be initiated (defaults to 'rest')")
-	config.fs.StringVar(&config.RestPort, "restPort", "8080", "set what port restApi should listen on (defaults to 8080")
-	config.fs.BoolVar(&config.ShouldMigrate, "migrate", false, "set if the storage should execute migrations (defaults to false)")
+	config.fs.StringVar(&config.Storage, "storage", "mysql", "set what storage will be used")
+	config.fs.StringVar(&config.Driver, "driver", "rest", "set what driver will be initiated")
+	config.fs.StringVar(&config.RestPort, "restPort", "8080", "set what port restApi should listen on")
+	config.fs.BoolVar(&config.ShouldMigrate, "migrate", false, "set if the storage should execute migrations")
 	err := config.fs.Parse(os.Args[1:])
 	if err != nil {
 		return nil, err
