@@ -30,6 +30,7 @@ func (m MissionsUseCases) AddNewMission(ctx context.Context, name string, projec
 	if err != nil {
 		return nil, err
 	}
+	// By default, every mission needs to be initialized with default Task Status.
 	for i, taskStatusName := range entities.GetDefaultTaskStatuses() {
 		status, err := m.taskStatusUseCases.AddNewTaskStatus(ctx, string(taskStatusName), i, mission.ID)
 		if err != nil {

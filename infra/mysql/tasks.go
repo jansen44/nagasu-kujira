@@ -41,6 +41,7 @@ func taskEntityToModel(entity *entities.TasksEntity, model *models.Task) {
 
 // Repository Methods ==================================================================
 func (t TasksMySQL) CreateTask(ctx context.Context, task *entities.TasksEntity) (*entities.TasksEntity, error) {
+	// Before inserting a task, there's a need in validating if the status is owned by the task mission.
 	taskStatus, err := models.FindTaskStatus(ctx, t.db, task.TaskStatusID)
 	if err != nil {
 		return nil, err
@@ -66,12 +67,16 @@ func (t TasksMySQL) UpdateTask(ctx context.Context, task *entities.TasksEntity) 
 	if err != nil {
 		return nil, err
 	}
-	taskStatus, err := models.FindTaskStatus(ctx, t.db, task.TaskStatusID)
-	if err != nil {
-		return nil, err
-	}
-	if taskStatus.MissionID != model.MissionID {
-		return nil, errors.New("invalid status")
+	// Before updating a task, there's a need in validating if the status is owned by the task mission
+	// (only if it's different from the current model)
+	if model.CurrentStatus != task.TaskStatusID {
+		taskStatus, err := models.FindTaskStatus(ctx, t.db, task.TaskStatusID)
+		if err != nil {
+			return nil, err
+		}
+		if taskStatus.MissionID != model.MissionID {
+			return nil, errors.New("invalid status")
+		}
 	}
 	taskEntityToModel(task, model)
 	_, err = model.Update(ctx, t.db, boil.Infer())
