@@ -9,6 +9,8 @@ Kujira鯨 aims to be an OSS solution for Kanban/Scrum stuff. It aims to be easy 
 NagasuKujira長須鯨 is part of the Kujira project as the main backend service. 長須鯨 (Fin Whales) are the fastest whales of the world, and this service aims to be the fastest service of the Kujira stack, so it makes sense (I guess).
 
 ### 長須鯨 Roadmap
+At first things may seem kinda simple, in general that's what I aim to do, but there are a lot of things I need/want to change in a near future.
+
 You can check all roadmap and current development status on our [Github Project](https://github.com/jansen44/nagasu-kujira/projects/1)
 
 ### Running 長須鯨
