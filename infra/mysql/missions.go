@@ -25,6 +25,9 @@ func missionModelToEntity(model *models.Mission) *entities.MissionsEntity {
 		if model.R.Tasks != nil {
 			mission.Tasks = taskModelSliceToPointerEntity(model.R.Tasks)
 		}
+		if model.R.TaskStatuses != nil {
+			mission.TaskStatus = taskStatusModelSliceToPointerEntity(model.R.TaskStatuses)
+		}
 	}
 	return mission
 }
@@ -86,7 +89,11 @@ func (m MissionsMySQL) DeleteMission(ctx context.Context, ID int) (*entities.Mis
 }
 
 func (m MissionsMySQL) ReadMission(ctx context.Context, ID int) (*entities.MissionsEntity, error) {
-	model, err := models.Missions(qm.Load(models.MissionRels.Tasks), qm.Where("id=?", ID)).One(ctx, m.db)
+	model, err := models.Missions(
+		qm.Load(models.MissionRels.Tasks),
+		qm.Load(models.MissionRels.TaskStatuses),
+		qm.Where("id=?", ID),
+	).One(ctx, m.db)
 	if err != nil {
 		return nil, err
 	}
